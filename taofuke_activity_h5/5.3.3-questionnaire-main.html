@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html class="light" lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+<title>答题成绩 - Quiz Results</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&amp;family=Hanken+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "primary-fixed": "#ffdad7",
+                "on-secondary-fixed-variant": "#44474a",
+                "on-secondary": "#ffffff",
+                "tertiary": "#006b23",
+                "on-tertiary-fixed": "#002106",
+                "surface-container": "#f0edef",
+                "on-secondary-fixed": "#191c1e",
+                "on-surface": "#1b1b1d",
+                "tertiary-fixed-dim": "#55e16b",
+                "on-tertiary": "#ffffff",
+                "primary-fixed-dim": "#ffb3ae",
+                "secondary-fixed": "#e0e3e6",
+                "on-tertiary-container": "#f7fff1",
+                "on-secondary-container": "#626567",
+                "on-background": "#1b1b1d",
+                "surface-bright": "#fcf8fb",
+                "primary": "#b51925",
+                "surface-variant": "#e4e2e4",
+                "on-surface-variant": "#5b403e",
+                "surface-container-high": "#eae7ea",
+                "on-error": "#ffffff",
+                "secondary-container": "#e0e3e6",
+                "background": "#fcf8fb",
+                "outline-variant": "#e3bebb",
+                "surface-tint": "#b81d27",
+                "inverse-on-surface": "#f3f0f2",
+                "primary-container": "#d8363a",
+                "tertiary-fixed": "#73fe84",
+                "surface": "#fcf8fb",
+                "on-tertiary-fixed-variant": "#005319",
+                "surface-container-highest": "#e4e2e4",
+                "outline": "#8f706d",
+                "on-primary-container": "#fffbff",
+                "error-container": "#ffdad6",
+                "surface-container-low": "#f6f3f5",
+                "on-primary-fixed": "#410004",
+                "on-primary": "#ffffff",
+                "secondary": "#5b5f61",
+                "surface-dim": "#dcd9dc",
+                "inverse-surface": "#303032",
+                "on-error-container": "#93000a",
+                "secondary-fixed-dim": "#c4c7ca",
+                "error": "#ba1a1a",
+                "tertiary-container": "#00872f",
+                "inverse-primary": "#ffb3ae",
+                "surface-container-lowest": "#ffffff",
+                "on-primary-fixed-variant": "#930015"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "md": "24px",
+                "xs": "8px",
+                "gutter": "16px",
+                "xl": "48px",
+                "margin-desktop": "64px",
+                "base": "4px",
+                "sm": "16px",
+                "lg": "32px",
+                "margin-mobile": "20px"
+        },
+        "fontFamily": {
+                "headline-lg-mobile": [
+                        "Plus Jakarta Sans"
+                ],
+                "headline-lg": [
+                        "Plus Jakarta Sans"
+                ],
+                "display-xl": [
+                        "Plus Jakarta Sans"
+                ],
+                "title-md": [
+                        "Plus Jakarta Sans"
+                ],
+                "body-rg": [
+                        "Plus Jakarta Sans"
+                ],
+                "label-sm": [
+                        "Plus Jakarta Sans"
+                ]
+        },
+        "fontSize": {
+                "headline-lg-mobile": [
+                        "28px",
+                        {
+                                "lineHeight": "36px",
+                                "fontWeight": "700"
+                        }
+                ],
+                "headline-lg": [
+                        "32px",
+                        {
+                                "lineHeight": "40px",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "display-xl": [
+                        "48px",
+                        {
+                                "lineHeight": "56px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "title-md": [
+                        "18px",
+                        {
+                                "lineHeight": "24px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "body-rg": [
+                        "16px",
+                        {
+                                "lineHeight": "24px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "label-sm": [
+                        "12px",
+                        {
+                                "lineHeight": "16px",
+                                "letterSpacing": "0.05em",
+                                "fontWeight": "500"
+                        }
+                ]
+        }
+      },
+    },
+  }
+</script>
+<style>
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+  body {
+    background-color: #e0e0e0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, "PingFang SC", sans-serif;
+  }
+  
+  .iphone-mockup {
+    width: 393px;
+    height: 852px;
+    background: #fcf8fb;
+    border-radius: 55px;
+    box-shadow: 0 0 0 12px #000, 0 0 0 13px #333, 0 20px 40px rgba(0,0,0,0.2);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .dynamic-island {
+    position: absolute;
+    top: 11px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 35px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 100;
+    pointer-events: none;
+  }
+  
+  .home-indicator {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 134px;
+    height: 5px;
+    background: #000;
+    border-radius: 100px;
+    z-index: 101;
+    pointer-events: none;
+  }
+
+  .mini-program-capsule {
+    position: absolute;
+    right: 15px;
+    top: 50px;
+    width: 87px;
+    height: 32px;
+    border-radius: 16px;
+    background: rgba(0,0,0,0.05);
+    border: 0.5px solid rgba(0,0,0,0.1);
+    z-index: 100;
+  }
+  .mini-program-capsule::before {
+    content: '•••';
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    color: #000;
+    letter-spacing: 1px;
+  }
+  .mini-program-capsule::after {
+    content: '';
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    border: 2px solid #000;
+    border-radius: 50%;
+  }
+  .mini-program-capsule-line {
+    position: absolute;
+    left: 43px;
+    top: 8px;
+    width: 0.5px;
+    height: 16px;
+    background: rgba(0,0,0,0.1);
+  }
+
+  /* ====== 分享弹窗 ====== */
+  .overlay {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6);
+    z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+  }
+  .overlay.show { opacity: 1; pointer-events: auto; }
+  
+  .share-modal {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    background: #fff; border-radius: 16px; z-index: 1001;
+    opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    width: 300px; padding: 24px; display: flex; flex-direction: column; align-items: center;
+  }
+  .share-modal.show { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1); }
+  
+  .share-close-btn {
+    position: absolute;
+    bottom: -60px; left: 50%; transform: translateX(-50%);
+    width: 40px; height: 40px; background: rgba(0,0,0,0.6); border: none;
+    border-radius: 50%; font-size: 20px; color: #fff; cursor: pointer;
+  }
+  
+  .poster-preview {
+    width: 220px; height: 320px; background: linear-gradient(180deg, #ff7a7a 0%, #e64340 100%);
+    border-radius: 16px; box-shadow: 0 10px 30px rgba(230, 67, 64, 0.3);
+    margin-bottom: 24px; position: relative; overflow: hidden; display: flex; flex-direction: column;
+    padding: 24px 20px; color: #fff; text-align: center;
+  }
+  .poster-title { font-size: 18px; font-weight: bold; margin-bottom: 24px; }
+  .poster-label { font-size: 13px; opacity: 0.9; margin-bottom: 6px; }
+  .poster-data { font-size: 42px; font-family: 'DIN Alternate', sans-serif; font-weight: bold; line-height: 1; margin-bottom: 16px; }
+  .poster-data span { font-size: 16px; font-family: -apple-system, sans-serif; font-weight: normal; margin-left: 2px;}
+  .poster-highlight { background: rgba(255,255,255,0.2); border-radius: 12px; padding: 6px 12px; font-size: 14px; display: inline-block; margin: 0 auto; }
+  
+  .poster-qr { width: 60px; height: 60px; background: #fff; border-radius: 8px; margin: auto auto 0; padding: 4px; }
+  .poster-qr::after { content: '二维码'; display: block; width: 100%; height: 100%; background: #eee; font-size: 10px; color: #999; line-height: 52px; }
+
+  .share-actions { display: flex; gap: 16px; width: 100%; }
+  .btn-share-action {
+    flex: 1; height: 48px; border-radius: 24px; font-size: 15px; font-weight: 600;
+    border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+  .btn-save-img { background: #F2F3F5; color: #1D1E20; }
+  .btn-send-chat { background: #07C160; color: #fff; }
+  
+  .toast { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: #fff; padding: 12px 24px; border-radius: 20px; font-size: 14px; opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 3000; white-space: nowrap; }
+  .toast.show { opacity: 1; }
+
+  /* 活动完成弹窗 */
+  .complete-overlay {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6); z-index: 1001;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s;
+  }
+  .complete-overlay.show { opacity: 1; pointer-events: auto; }
+
+  .complete-modal {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    background: linear-gradient(180deg, #FFD700 0%, #FFA500 100%);
+    border-radius: 16px; z-index: 1002;
+    opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    width: 260px; padding: 40px 30px; display: flex; flex-direction: column; align-items: center;
+  }
+  .complete-modal.show { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1); }
+  .complete-icon { font-size: 48px; margin-bottom: 16px; }
+  .complete-title { font-size: 20px; font-weight: bold; color: #fff; text-align: center; margin-bottom: 12px; }
+  .complete-stats { font-size: 14px; color: rgba(255,255,255,0.9); text-align: center; margin-bottom: 24px; }
+  .complete-share-btn {
+    width: 100%; padding: 14px; background: #fff; border: none; border-radius: 25px;
+    font-size: 16px; font-weight: 600; color: #FF6B00; cursor: pointer;
+  }
+</style>
+</head>
+<body class="antialiased">
+<div class="iphone-mockup">
+  <div class="dynamic-island"></div>
+  <div class="mini-program-capsule">
+    <div class="mini-program-capsule-line"></div>
+  </div>
+
+  <!-- TopAppBar -->
+  <header class="bg-surface text-primary font-title-md text-title-md w-full flex-shrink-0 flex items-center justify-between px-margin-mobile h-[100px] pt-[44px] z-40 border-b border-surface-variant relative">
+    <button id="btnBack" aria-label="Back" class="text-primary hover:opacity-80 transition-opacity active:scale-95 transition-transform flex items-center justify-center p-2 -ml-2 rounded-full">
+      <span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+    </button>
+    <h1 class="font-title-md text-title-md font-bold text-primary truncate">答题成绩</h1>
+    <div class="w-10"></div> <!-- Placeholder for balance -->
+  </header>
+
+  <!-- Scrollable Main Content Canvas -->
+  <main class="flex-grow overflow-y-auto px-margin-mobile py-6 flex flex-col gap-sm pb-[140px]">
+    <!-- Score Card -->
+    <section class="bg-surface-container-lowest rounded-lg p-6 flex flex-col items-center justify-center border border-surface-variant shadow-md relative overflow-hidden">
+      <!-- Decorative Background Element -->
+      <div class="absolute -top-10 -right-10 w-32 h-32 bg-primary-container rounded-full opacity-10 blur-xl"></div>
+      <div class="flex flex-col items-center gap-2 mb-4">
+        <p class="font-body-rg text-body-rg text-on-surface-variant">您的分数</p>
+        <div class="flex items-baseline gap-1 text-primary-container">
+          <span id="scoreDisplay" class="text-[48px] font-bold leading-none font-display-xl" style="font-family: 'Hanken Grotesk', sans-serif;">85</span>
+          <span class="font-label-sm text-label-sm">分</span>
+        </div>
+      </div>
+      <div class="w-full h-px bg-surface-variant my-4"></div>
+      <div class="flex items-center gap-2 text-on-surface-variant">
+        <span class="material-symbols-outlined text-[20px]" data-icon="timer">timer</span>
+        <p class="font-body-rg text-body-rg">答题用时: <span id="timeDisplay" class="font-label-sm text-label-sm text-on-surface ml-1">12分45秒</span></p>
+      </div>
+    </section>
+    
+    <!-- Actions -->
+    <section class="flex gap-sm pt-6 w-full">
+      <button id="btnExplanation" class="flex-1 bg-surface-container-lowest border border-outline-variant text-on-surface font-title-md text-title-md py-3 px-4 rounded-full flex items-center justify-center gap-2 hover:bg-surface-container-low transition-colors active:scale-[0.98]">
+        <span class="material-symbols-outlined text-[20px]" data-icon="visibility">visibility</span>
+        查看答案
+      </button>
+      <button id="btnRanking" class="flex-1 bg-surface-container-lowest border border-outline-variant text-on-surface font-title-md text-title-md py-3 px-4 rounded-full flex items-center justify-center gap-2 hover:bg-surface-container-low transition-colors active:scale-[0.98]">
+        <span class="material-symbols-outlined text-[20px]" data-icon="leaderboard">leaderboard</span>
+        查看排行榜
+      </button>
+    </section>
+  </main>
+
+  <!-- Bottom Navigation Area -->
+  <div class="absolute bottom-0 left-0 right-0 bg-surface-container-lowest border-t border-surface-variant p-4 pb-[38px] px-margin-mobile flex gap-sm z-30">
+    <button id="btnShare" class="flex-1 bg-surface-container-lowest border border-primary text-primary font-title-md text-title-md py-3 px-4 rounded-full flex items-center justify-center gap-2 hover:bg-primary-fixed transition-colors active:scale-[0.98]">
+      <span class="material-symbols-outlined text-[20px]" data-icon="share">share</span>
+      活动分享
+    </button>
+    <button id="btnInfo" class="flex-1 bg-surface-container-lowest border border-primary text-primary font-title-md text-title-md py-3 px-4 rounded-full flex items-center justify-center gap-2 hover:bg-primary-fixed transition-colors active:scale-[0.98]">
+      <span class="material-symbols-outlined text-[20px]" data-icon="info">info</span>
+      活动详情
+    </button>
+  </div>
+
+  <div class="home-indicator"></div>
+
+  <!-- Share overlay -->
+  <div class="overlay" id="shareOverlay"></div>
+  <div class="share-modal" id="shareModal">
+    <button class="share-close-btn" id="btnCloseShare">✕</button>
+    <div class="poster-preview">
+      <div class="poster-title">防诈骗知识问卷</div>
+      <div class="poster-label">本次答题得分</div>
+      <div class="poster-data" id="posterScore">85<span>分</span></div>
+      <div class="poster-highlight" id="posterTime">答题用时 12分45秒</div>
+      <div class="poster-qr"></div>
+    </div>
+    <div class="share-actions">
+      <button class="btn-share-action btn-save-img" id="btnSaveImg">保存海报</button>
+      <button class="btn-share-action btn-send-chat" id="btnSendChat">发送给朋友</button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+  const toastEl = document.getElementById('toast');
+  let toastTimer;
+  function showToast(msg) {
+    toastEl.innerText = msg; toastEl.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => { toastEl.classList.remove('show'); }, 2000);
+  }
+
+  // --- 动态计算分数与时间 ---
+  (function() {
+    const rawData = localStorage.getItem('taofuke_questionnaire_result');
+    if (!rawData) return;
+    try {
+      const data = JSON.parse(rawData);
+      const questions = data.questions;
+      const userAnswers = data.userAnswers;
+      const timeSpentSeconds = data.timeSpentSeconds;
+
+      let score = 0;
+      questions.forEach((q, idx) => {
+        const uAns = userAnswers[idx] || [];
+        const cAns = q.correctAnswers || [];
+        let isCorrect = false;
+        if (q.type === 'single') {
+          isCorrect = uAns.length === 1 && uAns[0] === cAns[0];
+        } else if (q.type === 'multiple') {
+          isCorrect = uAns.length === cAns.length && cAns.every(v => uAns.includes(v));
+        }
+        if (isCorrect) {
+          score += q.score;
+        }
+      });
+
+      const minutes = Math.floor(timeSpentSeconds / 60);
+      const seconds = timeSpentSeconds % 60;
+      const timeStr = `${minutes}分${seconds}秒`;
+
+      document.getElementById('scoreDisplay').innerText = score;
+      document.getElementById('posterScore').innerHTML = `${score}<span>分</span>`;
+      document.getElementById('timeDisplay').innerText = timeStr;
+      document.getElementById('posterTime').innerText = `答题用时 ${timeStr}`;
+    } catch(e) {
+      console.error('动态计算分数出错:', e);
+    }
+  })();
+
+  // --- Page Routing ---
+  document.getElementById('btnBack').addEventListener('click', () => {
+    window.location.href = '5.3.1-questionnaire-entrance.html';
+  });
+  document.getElementById('btnInfo').addEventListener('click', () => {
+    window.location.href = '5.3.4-questionnaire-detail.html';
+  });
+
+  document.getElementById('btnExplanation').addEventListener('click', () => {
+    window.location.href = '5.3.5-questionnaire-explanation.html';
+  });
+  document.getElementById('btnRanking').addEventListener('click', () => {
+    window.location.href = '5.3.3-questionnaire-ranking.html';
+  });
+
+  // --- Share Interaction ---
+  const shareOverlay = document.getElementById('shareOverlay');
+  const shareModal = document.getElementById('shareModal');
+  function closeShare() { shareOverlay.classList.remove('show'); shareModal.classList.remove('show'); }
+  document.getElementById('btnShare').addEventListener('click', () => { shareOverlay.classList.add('show'); shareModal.classList.add('show'); });
+  document.getElementById('btnCloseShare').addEventListener('click', closeShare);
+
+  document.getElementById('btnSaveImg').addEventListener('click', () => { showToast('海报已保存到手机相册'); closeShare(); });
+  document.getElementById('btnSendChat').addEventListener('click', () => { showToast('正在拉起微信分享...'); closeShare(); });
+</script>
+</body>
+</html>
