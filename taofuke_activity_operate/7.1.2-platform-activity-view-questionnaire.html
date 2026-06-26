@@ -139,25 +139,29 @@
               <div class="info-label">题库文件</div>
               <div class="info-value">
                 <span class="question-badge">已上传</span>
-                问卷题库_劳动节_v1.xlsx
+                <a href="#" style="color:var(--brand);text-decoration:none;font-weight:500" onclick="downloadTemplate(event)">问卷题库_劳动节_v1.xlsx</a>
                 <span style="color:var(--muted);margin-left:12px">（共 50 题）</span>
               </div>
             </div>
             <div class="info-row">
-              <div class="info-label">是否限时答题</div>
-              <div class="info-value">是</div>
-            </div>
-            <div class="info-row">
-              <div class="info-label">答题时限</div>
+              <div class="info-label">限时答题</div>
               <div class="info-value">30 分钟</div>
             </div>
             <div class="info-row">
-              <div class="info-label">是否重复答题</div>
+              <div class="info-label">重复答题</div>
               <div class="info-value">否</div>
             </div>
             <div class="info-row">
-              <div class="info-label">是否开启答题范围</div>
+              <div class="info-label">限制区域</div>
               <div class="info-value">否</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">答案解析</div>
+              <div class="info-value">显示</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">排行榜</div>
+              <div class="info-value">显示</div>
             </div>
           </div>
         </div>
@@ -252,6 +256,11 @@
     
     function goBack() {
       window.location.href = '7.1.1-platform-activity-management-list.html';
+    }
+
+    function downloadTemplate(e) {
+      e.preventDefault();
+      alert('💡 下载提示\n\n开始下载题库文件: 问卷题库_劳动节_v1.xlsx\n\n实际开发中会直接拉起文件下载。');
     }
   </script>
 </body>
