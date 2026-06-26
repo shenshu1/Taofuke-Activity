@@ -247,6 +247,29 @@ def generate_word_document():
     table_lines = []
     current_section = None
     
+    def self_insert_screenshot(doc, section_key):
+        """在当前位置插入对应章节的截图"""
+        config = PAGES_MAP[section_key]
+        img_path = os.path.join(SCREENSHOTS_DIR, config['filename'])
+        if os.path.exists(img_path):
+            # 使用 doc.add_picture 插入图片（比 run.add_picture 更可靠）
+            width = Inches(2.2) if config['is_h5'] else Inches(5.5)
+            pic_paragraph = doc.add_picture(img_path, width=width)
+            # add_picture 返回的段落中的 InlineShape, 其父段落需要居中
+            last_paragraph = doc.paragraphs[-1]
+            last_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            # 添加图注
+            p_caption = doc.add_paragraph()
+            p_caption.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            r_cap = p_caption.add_run(f"【图：{config['title']} 原型界面对照】")
+            r_cap.font.size = Pt(9)
+            r_cap.font.italic = True
+            r_cap.font.color.rgb = RGBColor(0x88, 0x88, 0x88)
+            p_caption.paragraph_format.space_after = Pt(8)
+            print(f"  ✅ 已插入截图: {config['filename']} (章节 {section_key})")
+        else:
+            print(f"  ⚠️ 截图文件不存在: {img_path}")
+
     def process_table(lines_list):
         if not lines_list:
             return
@@ -295,57 +318,56 @@ def generate_word_document():
         if not stripped:
             continue
             
-        # 标题行匹配
-        if stripped.startswith('# '):
-            p = doc.add_paragraph()
-            run = p.add_run(stripped[2:])
-            run.font.size = Pt(14)
-            run.font.bold = True
-            run.font.color.rgb = RGBColor(0x2A, 0x95, 0xF5)
-            p.paragraph_format.space_before = Pt(12)
-            p.paragraph_format.space_after = Pt(6)
-        elif stripped.startswith('## '):
-            p = doc.add_paragraph()
-            run = p.add_run(stripped[3:])
-            run.font.size = Pt(12)
-            run.font.bold = True
-            p.paragraph_format.space_before = Pt(8)
-            p.paragraph_format.space_after = Pt(4)
-        elif stripped.startswith('### ') or stripped.startswith('#### '):
-            header_text = stripped.replace('### ', '').replace('#### ', '').strip()
+        # 标题行匹配 - 使用 re.sub 去除开头所有 # 符号
+        if stripped.startswith('#'):
+            # 提取标题级别和文本
+            heading_match = re.match(r'^(#{1,6})\s+(.*)', stripped)
+            if not heading_match:
+                continue
+            level = len(heading_match.group(1))
+            header_text = heading_match.group(2).strip()
             
-            # 检测是否为特定配置项的页面章节
-            match = re.match(r"^(\d+\.\d+\.\d+(\.\d+)?)", header_text)
-            if match:
-                current_section = match.group(1)
+            if level == 1:
+                p = doc.add_paragraph()
+                run = p.add_run(header_text)
+                run.font.size = Pt(14)
+                run.font.bold = True
+                run.font.color.rgb = RGBColor(0x2A, 0x95, 0xF5)
+                p.paragraph_format.space_before = Pt(12)
+                p.paragraph_format.space_after = Pt(6)
+            elif level == 2:
+                p = doc.add_paragraph()
+                run = p.add_run(header_text)
+                run.font.size = Pt(12)
+                run.font.bold = True
+                p.paragraph_format.space_before = Pt(8)
+                p.paragraph_format.space_after = Pt(4)
                 
-            p = doc.add_paragraph()
-            run = p.add_run(header_text)
-            run.font.size = Pt(11)
-            run.font.bold = True
-            p.paragraph_format.space_before = Pt(6)
-            p.paragraph_format.space_after = Pt(3)
-            
-            # 如果进入了特定需要配图的页面章节，直接将截图插入标题下方
-            if current_section in PAGES_MAP:
-                config = PAGES_MAP[current_section]
-                img_path = os.path.join(SCREENSHOTS_DIR, config['filename'])
-                if os.path.exists(img_path):
-                    p_img = doc.add_paragraph()
-                    p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
-                    r_img = p_img.add_run()
-                    # 设定图片尺寸：H5用2.2英寸，后台用5.5英寸宽
-                    width = Inches(2.2) if config['is_h5'] else Inches(5.5)
-                    r_img.add_picture(img_path, width=width)
-                    # 添加图注
-                    p_caption = doc.add_paragraph()
-                    p_caption.alignment = WD_ALIGN_PARAGRAPH.CENTER
-                    r_cap = p_caption.add_run(f"【图：{config['title']} 原型界面对照】")
-                    r_cap.font.size = Pt(9)
-                    r_cap.font.italic = True
-                    r_cap.font.color.rgb = RGBColor(0x88, 0x88, 0x88)
-                    p_caption.paragraph_format.space_after = Pt(8)
-                current_section = None # 使用完毕后置空，避免重复配图
+                # 也检查 ## 级别标题的节号（如 5.2, 6.2）
+                match = re.match(r"^(\d+(?:\.\d+)+)", header_text)
+                if match:
+                    current_section = match.group(1)
+                    if current_section in PAGES_MAP:
+                        self_insert_screenshot(doc, current_section)
+                        current_section = None
+            else:
+                # ### 或 #### 级别
+                # 检测节号（如 4.1.1, 4.2.2.1, 5.1.1, 5.1.4）
+                match = re.match(r"^(\d+(?:\.\d+)+)", header_text)
+                if match:
+                    current_section = match.group(1)
+                    
+                p = doc.add_paragraph()
+                run = p.add_run(header_text)
+                run.font.size = Pt(11)
+                run.font.bold = True
+                p.paragraph_format.space_before = Pt(6)
+                p.paragraph_format.space_after = Pt(3)
+                
+                # 如果进入了特定需要配图的页面章节，直接将截图插入标题下方
+                if current_section in PAGES_MAP:
+                    self_insert_screenshot(doc, current_section)
+                    current_section = None  # 使用完毕后置空，避免重复配图
         else:
             # 普通正文及列表行
             p = doc.add_paragraph()
