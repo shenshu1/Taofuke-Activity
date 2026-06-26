@@ -155,7 +155,10 @@
     <div class="modal-content">
       <div class="modal-header">
         <span class="modal-title" id="modalTitle">🏆 活动排行榜</span>
-        <button class="modal-close" onclick="closeRankModal()">×</button>
+        <div style="display:flex;align-items:center;gap:12px">
+          <button class="btn" style="height:30px;padding:0 12px;font-size:12px;display:flex;align-items:center;gap:4px" onclick="exportRank()">⤓ 导出排行榜</button>
+          <button class="modal-close" onclick="closeRankModal()">×</button>
+        </div>
       </div>
       <div class="modal-body">
         <div class="table-wrap">
@@ -258,7 +261,7 @@
       list.forEach(r=>{
         const score=r[3]==='健步走'?`${(r[5]*10000).toLocaleString()} 步`:`${r[5]} 分`;
         const time=r[3]==='健步走'?'-':`${Math.floor(Math.random()*30)+5}:${String(Math.floor(Math.random()*60)).padStart(2,'0')}`;
-        tableBody.innerHTML+=`<tr><td title="${r[1]}">${r[1]}</td><td title="${r[2]}">${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td title="${r[0]}">${r[0]}</td><td>${r[5]}</td><td>${r[6]}</td><td>${r[7]>0?r[7]+'%':'-'}</td><td><div class="table-actions"><a class="table-link" onclick="showRank('${r[0]}','${r[2]}','${r[3]}')">查看排行榜</a><a class="table-link" onclick="exportRank('${r[0]}','${r[2]}','${r[3]}')">导出排行榜</a></div></td></tr>`
+        tableBody.innerHTML+=`<tr><td title="${r[1]}">${r[1]}</td><td title="${r[2]}">${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td title="${r[0]}">${r[0]}</td><td>${r[5]}</td><td>${r[6]}</td><td>${r[7]>0?r[7]+'%':'-'}</td><td><div class="table-actions"><a class="table-link" onclick="showRank('${r[0]}','${r[2]}','${r[3]}','${r[1]}')">查看排行榜</a><a class="table-link" onclick="exportRank('${r[0]}','${r[2]}','${r[3]}','${r[1]}')">导出排行榜</a></div></td></tr>`
       });
       pageNumbers.querySelectorAll("[data-page]").forEach(n=>n.onclick=()=>{page=Number(n.dataset.page);render()});$("prevPage").style.opacity=page===1?.45:1;$("nextPage").style.opacity=page===total?.45:1;
     }
@@ -281,7 +284,7 @@
     pageJump.onkeydown=e=>{if(e.key==="Enter"){const total=Math.max(1,Math.ceil(filtered.length/pageSize)),target=Number(pageJump.value);if(target>=1&&target<=total){page=target;render()}}};
     
     // 排行榜弹窗
-    let currentOperator='',currentActivity='',currentType='',currentRankPage=1,currentRankPageSize=10;
+    let currentOperator='',currentActivity='',currentType='',currentCode='',currentRankPage=1,currentRankPageSize=10;
     
     // 模拟排行榜数据
     const rankData={};
@@ -289,13 +292,13 @@
       const names=['张三','李四','王五','赵六','孙七','周八','吴九','郑十','钱十一','刘十二','冯十三','陈十四'];
       rankData[r[1]]=names.map((name,i)=>({
         rank:i+1,nickname:name,phone:'138****'+String(1000+i),
-        score:r[3]==='健步走'?((12-i)*10000+Math.floor(Math.random()*5000)).toLocaleString():(100-i*3)+'分',
+        score:r[3]==='健步走'?((12-i)*10000+Math.floor(Math.random()*5000)).toLocaleString()+' 步':(100-i*3)+' 分',
         duration:r[3]==='健步走'?`${15-i}天${8+i}小时`:`${5+i}:${String(Math.floor(Math.random()*60)).padStart(2,'0')}`
       }));
     });
     
-    function showRank(operator,name,type){
-      currentOperator=operator;currentActivity=name;currentType=type;currentRankPage=1;currentRankPageSize=10;
+    function showRank(operator,name,type,code){
+      currentOperator=operator;currentActivity=name;currentType=type;currentCode=code;currentRankPage=1;currentRankPageSize=10;
       $('modalTitle').textContent=`🏆 ${operator}_${name} - 排行榜`;
       if(type==='健步走'){
         $('scoreHeader').textContent='总步数';
@@ -309,12 +312,12 @@
     }
     
     function renderRankTable(){
-      const ranks=rankData[currentActivity]||[];
+      const ranks=rankData[currentCode]||[];
       const rankTableBody=$('rankTableBody');
       const rankSummary=$('rankSummary');
       if(ranks.length===0){
         rankSummary.textContent='共 0 条';
-        rankTableBody.innerHTML='<tr><td colspan="4" style="text-align:center;color:#8b98ab;padding:40px">暂无数据</td></tr>';
+        rankTableBody.innerHTML='<tr><td colspan="5" style="text-align:center;color:#8b98ab;padding:40px">暂无数据</td></tr>';
         $('rankPageNumbers').innerHTML='';
         return;
       }
@@ -345,14 +348,56 @@
     function goToRankPage(page){currentRankPage=page;renderRankTable();}
     
     $('rankPrevPage').addEventListener('click',()=>{if(currentRankPage>1){currentRankPage--;renderRankTable()}});
-    $('rankNextPage').addEventListener('click',()=>{const total=Math.ceil((rankData[currentActivity]||[]).length/currentRankPageSize);if(currentRankPage<total){currentRankPage++;renderRankTable()}});
+    $('rankNextPage').addEventListener('click',()=>{const total=Math.ceil((rankData[currentCode]||[]).length/currentRankPageSize);if(currentRankPage<total){currentRankPage++;renderRankTable()}});
     $('rankPageSize').addEventListener('change',function(){currentRankPageSize=Number(this.value);currentRankPage=1;renderRankTable()});
-    $('rankJump').addEventListener('keydown',function(e){if(e.key==='Enter'){const total=Math.ceil((rankData[currentActivity]||[]).length/currentRankPageSize);const target=Number(this.value);if(target>=1&&target<=total){currentRankPage=target;renderRankTable()}}});
+    $('rankJump').addEventListener('keydown',function(e){if(e.key==='Enter'){const total=Math.ceil((rankData[currentCode]||[]).length/currentRankPageSize);const target=Number(this.value);if(target>=1&&target<=total){currentRankPage=target;renderRankTable()}}});
     
     function closeRankModal(){$('rankModal').classList.remove('show');}
     
-    function exportRank(){
-      alert(`正在导出：${currentOperator}_${currentActivity}_排行榜_${new Date().toLocaleDateString()}.xlsx`);
+    function exportRank(operator,name,type,code){
+      const op = operator || currentOperator;
+      const act = name || currentActivity;
+      const t = type || currentType;
+      const c = code || currentCode;
+      
+      const ranks = rankData[c] || [];
+      if(ranks.length === 0){
+        alert('暂无排行榜数据可导出');
+        return;
+      }
+      
+      const scoreTitle = t === '健步走' ? '总步数' : '分数';
+      let csv = `\uFEFF排名,昵称,手机号,${scoreTitle}`;
+      if(t !== '健步走'){
+        csv += `,用时`;
+      }
+      csv += `\n`;
+      
+      ranks.forEach(item => {
+        csv += `${item.rank},${item.nickname},${item.phone},${item.score}`;
+        if(t !== '健步走'){
+          csv += `,${item.duration || '-'}`;
+        }
+        csv += `\n`;
+      });
+      
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const date = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      const timeStr = `${year}${month}${date}_${hours}${minutes}${seconds}`;
+      
+      const fileName = `${op}_${act}_排行榜_${timeStr}.csv`;
+      
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = fileName;
+      link.click();
+      URL.revokeObjectURL(link.href);
     }
     
     $('rankModal').addEventListener('click',function(e){if(e.target===this)closeRankModal()});
