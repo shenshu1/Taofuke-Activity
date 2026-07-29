@@ -18,8 +18,28 @@
     .date-panel{position:absolute;top:calc(100% + 10px);left:84px;width:900px;background:#fff;border:1px solid #eef2f7;border-radius:4px;box-shadow:0 20px 42px rgba(25,42,70,.14);display:none;z-index:10}.date-panel.open{display:block}.date-panel:before{content:"";position:absolute;top:-8px;left:34px;width:14px;height:14px;background:#fff;border-top:1px solid #eef2f7;border-left:1px solid #eef2f7;transform:rotate(45deg)}
     .calendar-shell{display:grid;grid-template-columns:1fr 1fr}.calendar{padding:20px 26px 18px}.calendar+.calendar{border-left:1px solid #f1f4f8}.calendar-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;font-size:17px;font-weight:700;color:#1f2b3d}.calendar-nav{display:flex;gap:10px;color:#b1bac8;font-size:24px;user-select:none}.weekday-row,.days-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;text-align:center}.weekday-row{margin-bottom:14px;font-size:16px;color:#404c60}.day{width:36px;height:36px;margin:0 auto;border-radius:4px;display:grid;place-items:center;font-size:16px;color:#404c60;border:1px solid transparent;cursor:pointer}.day.muted{color:#c5ccd7}.day.in-range{background:#eef7ff}.day.selected{border-color:var(--brand)}
     .actions-row{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}button{min-width:78px;height:34px;border:1px solid #d8e0eb;border-radius:4px;background:#fff;color:#314055;cursor:pointer}
-    .list-panel{padding:22px 16px 14px}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:6px}table{width:100%;min-width:1086px;border-collapse:collapse;table-layout:fixed}thead th{height:56px;padding:0 14px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);text-align:left;font-weight:700;white-space:nowrap}tbody td{padding:12px 14px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#405066}thead th:last-child,tbody td:last-child{border-right:none}tbody tr:hover,tbody tr.selected-row{background:#dff3ff}.time-cell{white-space:normal;line-height:1.45;word-break:break-word}.table-actions{display:flex;flex-direction:column;gap:4px}.table-link{color:var(--brand);text-decoration:none}.delete{color:var(--danger)}.disabled{color:#b2bccb;cursor:not-allowed}
+    .list-panel{padding:22px 16px 14px}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:6px}table{width:100%;min-width:1086px;border-collapse:collapse;table-layout:fixed}thead th{height:56px;padding:0 14px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);text-align:left;font-weight:700;white-space:nowrap}tbody td{padding:12px 14px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#405066}thead th:last-child,tbody td:last-child{border-right:none}tbody tr:hover,tbody tr.selected-row{background:#dff3ff}.time-cell{white-space:normal;line-height:1.45;word-break:break-word}.table-actions{display:flex;flex-direction:row;align-items:center;gap:10px;flex-wrap:wrap}.table-link{color:var(--brand);text-decoration:none}.delete{color:var(--danger)}.disabled{color:#b2bccb;cursor:not-allowed}
     .footer-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 4px 6px;color:#5b6b81;flex-wrap:wrap}.pager{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.page-btn,.page-select{height:34px;border:1px solid #dce4ef;border-radius:2px;background:#fff;color:#526178}.page-btn{min-width:36px;display:inline-flex;align-items:center;justify-content:center;padding:0 10px;cursor:pointer}.page-btn.active{background:var(--brand);border-color:var(--brand);color:#fff}.page-select,.page-input{padding:0 10px;outline:none}.page-input{width:48px;height:34px;border:1px solid #dce4ef;border-radius:2px;text-align:center}.empty{display:none;padding:54px 20px 60px;text-align:center;color:#94a2b6;font-size:15px}
+    /* 弹窗样式 */
+    .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;display:none;align-items:center;justify-content:center}
+    .modal-overlay.open{display:flex}
+    .modal-dialog{background:#fff;width:520px;border-radius:10px;box-shadow:0 12px 36px rgba(39,54,74,0.16);overflow:hidden;animation:modalFadeIn 0.2s ease-out}
+    @keyframes modalFadeIn{from{opacity:0;transform:scale(0.96)}to{opacity:1;transform:scale(1)}}
+    .modal-header{padding:18px 24px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;background:#fafbfc}
+    .modal-title{font-size:16px;font-weight:700;color:var(--text);margin:0}
+    .modal-close{border:none;background:transparent;font-size:22px;color:var(--muted);cursor:pointer;line-height:1;min-width:auto;height:auto;padding:0}
+    .modal-close:hover{color:var(--text)}
+    .modal-body{padding:24px}
+    .modal-type-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .modal-type-card{border:2px solid var(--line2);border-radius:8px;padding:16px;cursor:pointer;display:flex;align-items:center;transition:all 0.2s ease;background:#fff;position:relative}
+    .modal-type-card.active{border-color:var(--brand);background:var(--brand-bg);box-shadow:0 4px 12px rgba(42,149,245,0.12)}
+    .modal-type-content{flex:1}
+    .modal-type-title{font-size:15px;font-weight:600;color:#1f2b3d;margin-bottom:4px}
+    .modal-type-desc{font-size:12px;color:#8b98ab;line-height:1.4}
+    .modal-footer{padding:16px 24px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:12px;background:#fafbfc}
+    .btn-primary{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600}
+    .btn-primary:hover:not(:disabled){background:#1e88e5;border-color:#1e88e5}
+    .btn-primary:disabled,.btn-primary.disabled{background:#c6e2ff;border-color:#c6e2ff;color:#fff;cursor:not-allowed;opacity:0.7}
     @media (max-width:1440px){.filters{grid-template-columns:1fr 1fr}.date-panel{width:760px}}@media (max-width:1100px){.app{grid-template-columns:1fr}.sidebar{display:none}.topbar{padding:0 16px}.page{padding:12px}.filters{grid-template-columns:1fr}.field,.actions-row{flex-wrap:wrap}.field{flex-direction:column;align-items:stretch;gap:8px}.field label{min-width:auto}.field.wide{grid-column:auto}.date-panel{left:0;width:100%}.calendar-shell{grid-template-columns:1fr}.calendar+.calendar{border-left:none;border-top:1px solid #f1f4f8}}
   </style>
 </head>
@@ -90,6 +110,36 @@
       </section>
     </main>
   </div>
+  
+  <!-- 选择活动类型弹窗 -->
+  <div class="modal-overlay" id="createModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">选择活动类型</h3>
+        <button class="modal-close" id="modalClose">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-type-cards">
+          <div class="modal-type-card" data-type="walking">
+            <div class="modal-type-content">
+              <div class="modal-type-title">健步走</div>
+              <div class="modal-type-desc">通过微信运动步数进行排名竞赛</div>
+            </div>
+          </div>
+          <div class="modal-type-card" data-type="questionnaire">
+            <div class="modal-type-content">
+              <div class="modal-type-title">问卷答题</div>
+              <div class="modal-type-desc">在线答题测试，支持限时和排名</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary disabled" id="modalConfirm" disabled>去创建</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // 高亮当前页面菜单项
     const currentPage = window.location.pathname.split('/').pop();
@@ -122,7 +172,7 @@
     }
     function getViewUrl(r){return r[3]==='问卷答题'?'6.1.4-activity-view-questionnaire.html':'6.1.4-activity-view.html'}
         function getEditUrl(r){return r[3]==='问卷答题'?'6.1.5-activity-edit.html?type=questionnaire':'6.1.5-activity-edit.html'}
-        function actionCell(r){const viewUrl=getViewUrl(r),editUrl=getEditUrl(r);return`<div class="table-actions"><a class="table-link" href="${viewUrl}?code=${r[0]}&status=${encodeURIComponent(r[4])}">查看</a>${r[4]==="已结束"?'<span class="disabled">编辑</span>':`<a class="table-link" href="${editUrl}?code=${r[0]}&status=${encodeURIComponent(r[4])}">编辑</a>`}<a class="table-link" href="javascript:void(0)" onclick="downloadQRCode('${r[0]}','${r[1]}')">下载二维码</a></div>`}
+        function actionCell(r){const viewUrl=getViewUrl(r),editUrl=getEditUrl(r);return`<div class="table-actions"><a class="table-link" href="${viewUrl}?code=${r[0]}&status=${encodeURIComponent(r[4])}">查看</a>${r[4]==="已结束"?'<span class="disabled">编辑</span>':`<a class="table-link" href="${editUrl}?code=${r[0]}&status=${encodeURIComponent(r[4])}">编辑</a>`}<a class="table-link" href="javascript:void(0)" onclick="downloadQRCode('${r[0]}','${r[1]}')">下载二维码</a><a class="table-link" href="javascript:void(0)" onclick="copyActivityLink('${r[0]}')">复制活动链接</a></div>`}
     function render(){
       tableBody.innerHTML="";summary.textContent=`共 ${filtered.length} 条`;if(!filtered.length){emptyState.style.display="block";pageNumbers.innerHTML='<span class="page-btn active">1</span>';return}emptyState.style.display="none";
       const total=Math.max(1,Math.ceil(filtered.length/pageSize));if(page>total)page=total;const list=filtered.slice((page-1)*pageSize,page*pageSize);
@@ -143,7 +193,51 @@
     rangeIcon.onclick=e=>{if(start&&end){e.stopPropagation();start=null;end=null;pendingStart=null;selecting="start";$("datePanel").classList.remove("open");syncRange();renderCals()}};
     document.addEventListener("click",e=>{if(!$("datePanel").contains(e.target)&&!$("rangeTrigger").contains(e.target)){if(pendingStart&&selecting==="end"){pendingStart=null;selecting="start";renderCals()}$("datePanel").classList.remove("open")}if(!e.target.closest("#tableWrap")&&!e.target.closest(".pager")){selectedCode=null;render()}});
     $("queryBtn").onclick=applyFilters;
-    $("createBtn").onclick=()=>{window.location.href="6.1.2-activity-create.html"};
+
+    // 新建活动弹窗交互逻辑
+    let selectedCreateType = null;
+    const createModal = $("createModal");
+    const confirmBtn = $("modalConfirm");
+    
+    function updateConfirmBtnState() {
+      if (selectedCreateType) {
+        confirmBtn.disabled = false;
+        confirmBtn.classList.remove("disabled");
+      } else {
+        confirmBtn.disabled = true;
+        confirmBtn.classList.add("disabled");
+      }
+    }
+
+    $("createBtn").onclick = () => {
+      selectedCreateType = null;
+      document.querySelectorAll(".modal-type-card").forEach(c => c.classList.remove("active"));
+      updateConfirmBtnState();
+      createModal.classList.add("open");
+    };
+
+    document.querySelectorAll(".modal-type-card").forEach(card => {
+      card.onclick = () => {
+        if (selectedCreateType === card.dataset.type) {
+          selectedCreateType = null;
+          document.querySelectorAll(".modal-type-card").forEach(c => c.classList.remove("active"));
+        } else {
+          selectedCreateType = card.dataset.type;
+          document.querySelectorAll(".modal-type-card").forEach(c => c.classList.remove("active"));
+          card.classList.add("active");
+        }
+        updateConfirmBtnState();
+      };
+    });
+
+    const closeModal = () => createModal.classList.remove("open");
+    $("modalClose").onclick = closeModal;
+    createModal.onclick = e => { if (e.target === createModal) closeModal(); };
+    confirmBtn.onclick = () => {
+      if (!selectedCreateType) return;
+      window.location.href = `6.1.2-activity-create.html?type=${selectedCreateType}`;
+    };
+
     $("prevPage").onclick=()=>{if(page>1){page--;render()}};
     $("nextPage").onclick=()=>{const total=Math.max(1,Math.ceil(filtered.length/pageSize));if(page<total){page++;render()}};
     pageSizeSel.onchange=()=>{pageSize=Number(pageSizeSel.value);page=1;render()};
@@ -165,6 +259,62 @@
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+    }
+
+    // 悬浮轻提示 Toast 功能（参考项目后台规范）
+    function showToast(msg) {
+      let toast = document.getElementById('globalToast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'globalToast';
+        toast.style.cssText = 'position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#fff; box-shadow:0 4px 12px rgba(0,0,0,0.15); padding:12px 24px; border-radius:4px; display:flex; align-items:center; gap:8px; z-index:10000; opacity:0; transition:all 0.3s; color:#39485d; font-size:14px; font-weight:500; border:1px solid #edf1f7; pointer-events:none;';
+        document.body.appendChild(toast);
+      }
+      toast.innerHTML = `<span style="color:#52c41a; font-size:16px; font-weight:bold;">✓</span> ${msg}`;
+      toast.style.top = '20px';
+      toast.style.opacity = '0';
+      
+      setTimeout(() => {
+        toast.style.opacity = '1';
+        toast.style.top = '40px';
+      }, 10);
+      
+      if (window.toastTimer) clearTimeout(window.toastTimer);
+      window.toastTimer = setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.top = '20px';
+      }, 2000);
+    }
+
+    // 复制活动链接功能
+    function copyActivityLink(activityCode) {
+      const link = 'weixin://dl/business/?appid=wx2e893bb27cbda850&path=pages/h5/index&query=route%3D%252Factivity-entry%253Fsource%253Dqrcode%2526sceneCode%253DB7PoxkaF&env_version=release';
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(link).then(() => {
+          showToast('复制成功');
+        }).catch(() => {
+          fallbackCopy(link);
+        });
+      } else {
+        fallbackCopy(link);
+      }
+    }
+
+    function fallbackCopy(text) {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.opacity = '0';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        showToast('复制成功');
+      } catch (err) {
+        showToast('复制失败');
+      }
+      document.body.removeChild(textArea);
     }
   </script>
 </body>

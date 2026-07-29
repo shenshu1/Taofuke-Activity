@@ -315,26 +315,6 @@
           <div id="step1Content">
             <div class="config-card">
               <div class="config-card-header">
-                <div class="config-card-title">活动类型</div>
-              </div>
-              <div class="config-card-body">
-                <div class="type-cards">
-                  <label class="type-card active">
-                    <input type="radio" name="activityType" value="walking" checked>
-                    <div class="type-card-title">健步走</div>
-                    <div class="type-card-desc">通过微信运动步数进行排名竞赛</div>
-                  </label>
-                  <label class="type-card">
-                    <input type="radio" name="activityType" value="questionnaire">
-                    <div class="type-card-title">问卷答题</div>
-                    <div class="type-card-desc">在线答题测试，支持限时和排名</div>
-                  </label>
-                </div>
-              </div>
-            </div>
-            
-            <div class="config-card">
-              <div class="config-card-header">
                 <div class="config-card-title">活动基础信息</div>
               </div>
               <div class="config-card-body">
@@ -676,17 +656,12 @@
       document.getElementById('stepLimitConfigBox').style.display = isEnabled ? 'block' : 'none';
     }
 
-    // 活动类型切换
-    document.querySelectorAll('input[name="activityType"]').forEach(radio => {
-      radio.addEventListener('change', (e) => {
-        document.querySelectorAll('.type-card').forEach(card => card.classList.remove('active'));
-        e.target.closest('.type-card').classList.add('active');
-        updatePreview();
-        if (currentStep === 2) {
-          renderDynamicConfig();
-        }
-      });
-    });
+    // 从 URL 参数获取活动类型
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentActivityType = urlParams.get('type') || 'walking';
+    function getActivityType() {
+      return currentActivityType;
+    }
     
     // 参与范围切换 - 始终显示对应控件
     function updateParticipationControls() {
@@ -706,19 +681,6 @@
     
     document.querySelectorAll('input[name="participationType"]').forEach(radio => {
       radio.addEventListener('change', updateParticipationControls);
-    });
-    
-    // 活动类型切换时也更新参与范围控件
-    document.querySelectorAll('input[name="activityType"]').forEach(radio => {
-      radio.addEventListener('change', () => {
-        document.querySelectorAll('.type-card').forEach(card => card.classList.remove('active'));
-        radio.closest('.type-card').classList.add('active');
-        updatePreview();
-        if (currentStep === 2) {
-          renderDynamicConfig();
-          updateParticipationControls(); // 确保参与范围控件正常显示
-        }
-      });
     });
     
     // 图片上传
@@ -776,7 +738,7 @@
       const activityDesc = document.getElementById('activityDesc').value || '活动介绍内容将在这里显示...';
       const startDate = document.getElementById('startDate').value;
       const endDate = document.getElementById('endDate').value;
-      const activityType = document.querySelector('input[name="activityType"]:checked').value;
+      const activityType = getActivityType();
       
       // 更新入口页预览
       document.getElementById('previewTitle').textContent = frontendTitle;
@@ -824,7 +786,7 @@
     
     // 渲染动态配置区域
     function renderDynamicConfig() {
-      const activityType = document.querySelector('input[name="activityType"]:checked').value;
+      const activityType = getActivityType();
       const container = document.getElementById('dynamicConfigArea');
       
       if (activityType === 'walking') {
@@ -1154,7 +1116,7 @@
       const activityName = document.getElementById('activityName').value.trim();
       const activityDesc = document.getElementById('activityDesc').value.trim();
       const hasImage = uploadedImage !== null;
-      const activityType = document.querySelector('input[name="activityType"]:checked').value;
+      const activityType = getActivityType();
       const startDate = document.getElementById('startDate').value;
       const endDate = document.getElementById('endDate').value;
       
@@ -1255,7 +1217,7 @@
       if (!validateForm()) return;
       
       const activityName = document.getElementById('activityName').value;
-      const activityType = document.querySelector('input[name="activityType"]:checked').value;
+      const activityType = getActivityType();
       const participationType = document.querySelector('input[name="participationType"]:checked').value;
       const activityId = 'HD' + new Date().toISOString().replace(/[-:T.]/g, '').substring(0, 14) + Math.floor(Math.random() * 1000).toString().padStart(3, '0');
       
