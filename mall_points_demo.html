@@ -1,0 +1,2257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>API商城 - 选择资产与联合登录演示</title>
+  <style>
+    :root {
+      --primary-red: #c8252c;
+      --primary-red-hover: #b31f25;
+      --gold-amount: #b58c5a;
+      --gold-tag: #b58c5a;
+      --auth-orange: #eb4d2d;
+      --auth-orange-hover: #d84122;
+      --text-main: #222222;
+      --text-secondary: #666666;
+      --text-muted: #999999;
+      --bg-page: #f7f8fa;
+      --bg-card: #ffffff;
+      --border-color: #ebebeb;
+      --notice-bg: #fff5f5;
+      --notice-border: #fde8e8;
+      --notice-text: #c8252c;
+      --font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Segoe UI", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background: #121214;
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    /* Mobile Frame */
+    .device-wrapper {
+      position: relative;
+      width: 390px;
+      height: 844px;
+      background: #000;
+      border-radius: 48px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 0 0 0 10px #2c2c30, 0 0 0 12px #18181b;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Dynamic Island / Notch */
+    .device-notch {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 30px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 999;
+      pointer-events: none;
+    }
+
+    .device-screen {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: var(--bg-page);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* iOS Status Bar */
+    .status-bar {
+      height: 44px;
+      padding: 12px 24px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: #111;
+      z-index: 100;
+      background: #fff;
+    }
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .status-icons svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
+    /* Top Webview Browser Bar */
+    .webview-header {
+      background: #fff;
+      border-bottom: 1px solid #f0f0f0;
+      padding: 6px 14px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 90;
+    }
+    .webview-header .left-actions, .webview-header .right-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .webview-header .icon-btn {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #333;
+    }
+    .webview-header .title-box {
+      text-align: center;
+      flex: 1;
+      margin: 0 8px;
+      overflow: hidden;
+    }
+    .webview-header .title-text {
+      font-size: 15px;
+      font-weight: 600;
+      color: #111;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .webview-header .domain-text {
+      font-size: 10px;
+      color: #999;
+      margin-top: 1px;
+    }
+
+    /* Pages Container */
+    .pages-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      background: var(--bg-page);
+    }
+
+    .page {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+      flex-direction: column;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      background: var(--bg-page);
+    }
+
+    .page.active {
+      display: flex;
+      animation: fadeInScale 0.15s ease-out;
+    }
+
+    @keyframes fadeInScale {
+      0% { opacity: 0.85; transform: scale(0.99); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* ================= PAGE 1: 首页 ================= */
+    .home-search-bar {
+      background: #fff;
+      padding: 8px 14px 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .location-selector {
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 500;
+      color: #222;
+      gap: 3px;
+      cursor: pointer;
+    }
+    .search-input-box {
+      flex: 1;
+      background: #f4f4f4;
+      border-radius: 18px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 6px;
+      color: #999;
+      font-size: 13px;
+    }
+    .home-header-icons {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #333;
+    }
+    .badge-icon {
+      position: relative;
+    }
+    .badge-num {
+      position: absolute;
+      top: -5px;
+      right: -7px;
+      background: var(--primary-red);
+      color: #fff;
+      font-size: 9px;
+      border-radius: 9px;
+      padding: 1px 4px;
+      font-weight: bold;
+    }
+
+    .category-tabs-scroll {
+      background: #fff;
+      display: flex;
+      align-items: center;
+      padding: 0 10px 8px;
+      border-bottom: 1px solid #f5f5f5;
+      overflow-x: auto;
+      gap: 6px;
+      scrollbar-width: none;
+    }
+    .category-tabs-scroll::-webkit-scrollbar {
+      display: none;
+    }
+    .tab-item {
+      padding: 4px 12px;
+      font-size: 13px;
+      color: #555;
+      white-space: nowrap;
+      border-radius: 14px;
+      cursor: pointer;
+    }
+    .tab-item.active {
+      background: #fff1f0;
+      color: var(--primary-red);
+      font-weight: 600;
+    }
+
+    .banner-container {
+      padding: 10px 12px 6px;
+    }
+    .main-banner {
+      position: relative;
+      width: 100%;
+      height: 120px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #1b7a48 0%, #30a267 100%);
+      color: #fff;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(27, 122, 72, 0.2);
+      cursor: pointer;
+    }
+    .banner-bg-graphic {
+      position: absolute;
+      right: -10px;
+      bottom: -15px;
+      opacity: 0.25;
+    }
+    .banner-content {
+      position: relative;
+      z-index: 2;
+      padding: 18px 16px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .banner-tag {
+      align-self: flex-start;
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(4px);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .banner-title {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    }
+    .banner-sub {
+      font-size: 11px;
+      opacity: 0.9;
+      margin-top: 4px;
+    }
+
+    .section-block {
+      background: #fff;
+      margin: 8px 10px 10px;
+      border-radius: 14px;
+      padding: 12px 10px 14px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    }
+    .section-title-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--primary-red);
+      letter-spacing: 1px;
+    }
+    .section-line {
+      width: 24px;
+      height: 1px;
+      background: #ffd3d5;
+    }
+    .diamond {
+      color: var(--primary-red);
+      font-size: 10px;
+    }
+
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      row-gap: 14px;
+      column-gap: 4px;
+    }
+    .grid-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+    }
+    .grid-item:active {
+      transform: scale(0.94);
+    }
+    .icon-wrapper {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 6px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.06);
+    }
+    .icon-label {
+      font-size: 11px;
+      color: #333;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 58px;
+    }
+
+    /* Bottom Tab Bar */
+    .bottom-tab-bar {
+      background: #fff;
+      border-top: 1px solid #ededed;
+      height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 4px 0 6px;
+      z-index: 100;
+    }
+    .tab-nav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #888;
+      font-size: 10px;
+      gap: 2px;
+      cursor: pointer;
+      width: 25%;
+    }
+    .tab-nav-btn.active {
+      color: var(--primary-red);
+      font-weight: 600;
+    }
+    .tab-nav-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* ================= PAGE 2: 选择积分页 (参考截图 1:1 还原) ================= */
+    .points-nav-bar {
+      background: #fff;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      position: relative;
+      border-bottom: 1px solid #f2f2f2;
+    }
+    .points-nav-back {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #111;
+      width: 32px;
+      height: 32px;
+      margin-left: -6px;
+    }
+    .points-nav-back:active {
+      opacity: 0.6;
+    }
+    .points-nav-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: #111;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      letter-spacing: 0.5px;
+    }
+
+    /* 顶部右侧定位组件 (带下拉箭头) */
+    .city-location-btn {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #222;
+      cursor: pointer;
+      padding: 4px 6px;
+      border-radius: 6px;
+      user-select: none;
+    }
+    .city-location-btn:active {
+      opacity: 0.65;
+      background: rgba(0, 0, 0, 0.05);
+    }
+    .city-location-btn svg {
+      margin-top: 1px;
+    }
+
+    /* 顶部横幅说明文案 (淡粉背景) */
+    .points-notice-bar {
+      background: #fff5f5;
+      border-bottom: 1px solid #fae5e5;
+      padding: 10px 16px;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      transition: all 0.2s ease;
+    }
+    .points-notice-text {
+      font-size: 12px;
+      line-height: 1.6;
+      color: #666;
+      width: 100%;
+    }
+    .points-notice-text.selected-state {
+      font-size: 14px;
+      color: var(--primary-red);
+      font-weight: 600;
+    }
+
+    /* 积分卡券列表容器 */
+    .points-list-scroll {
+      flex: 1;
+      padding: 16px 14px 90px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: auto;
+    }
+
+    /* 单个积分卡项行结构：左侧勾选圆圈 + 右侧卡片主体 */
+    .points-row-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+
+    /* 左侧单选/多选勾选圈 (截图 1:1 圆环与红色对勾) */
+    .points-check-circle {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 1.5px solid #8e8e93;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.15s ease;
+      background: #fff;
+    }
+    .points-row-item.selected .points-check-circle {
+      border-color: var(--primary-red);
+      background: var(--primary-red);
+    }
+    .points-check-circle svg {
+      width: 13px;
+      height: 13px;
+      stroke: #fff;
+      stroke-width: 3.2;
+      display: none;
+    }
+    .points-row-item.selected .points-check-circle svg {
+      display: block;
+    }
+
+    /* 右侧积分卡片主体 (1:1 还原截图设计：纯净卡面 + 水果暗纹浮雕效果) */
+    .points-card-card {
+      flex: 1;
+      height: 154px;
+      background: #ffffff;
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+      padding: 24px 22px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      border: 1px solid rgba(0, 0, 0, 0.03);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .points-row-item:active .points-card-card {
+      transform: scale(0.99);
+    }
+
+    /* 水果暗纹水印背景 (SVG 柠檬切片、苹果、葡萄、西瓜切片轮廓) */
+    .points-fruit-watermark {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      pointer-events: none;
+      opacity: 0.45;
+      z-index: 1;
+    }
+
+    /* 卡片内部头部：左侧大字金额，右侧通用积分标签 */
+    .points-card-header {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    /* 大字金额 (金色/暖棕色) */
+    .points-amount-val {
+      font-size: 34px;
+      font-weight: 500;
+      color: var(--gold-amount);
+      letter-spacing: -0.5px;
+      line-height: 1;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+    }
+
+    /* 右上角积分类型：通用积分 */
+    .points-type-tag {
+      font-size: 15px;
+      color: var(--gold-tag);
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    /* 底部固定确认按钮栏 */
+    .fixed-bottom-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #fff;
+      padding: 10px 16px 20px;
+      border-top: 1px solid #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 -4px 12px rgba(0,0,0,0.03);
+      z-index: 80;
+    }
+    .btn-confirm {
+      width: 100%;
+      height: 46px;
+      background: var(--primary-red);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(200, 37, 44, 0.25);
+      transition: all 0.15s ease;
+    }
+    .btn-confirm:active {
+      background: var(--primary-red-hover);
+      transform: scale(0.99);
+    }
+    .btn-confirm:disabled, .btn-confirm.disabled {
+      background: #d4d4d8 !important;
+      color: #ffffff !important;
+      box-shadow: none !important;
+      cursor: not-allowed !important;
+      transform: none !important;
+    }
+
+    /* ================= 支付密码弹窗 ================= */
+    .modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.55);
+      z-index: 200;
+      display: none;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .bottom-sheet {
+      background: #fff;
+      border-top-left-radius: 18px;
+      border-top-right-radius: 18px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 -10px 30px rgba(0,0,0,0.15);
+      animation: sheetUp 0.2s ease-out;
+    }
+    @keyframes sheetUp {
+      0% { transform: translateY(100%); }
+      100% { transform: translateY(0); }
+    }
+
+    .sheet-header {
+      padding: 16px 14px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+    }
+    .sheet-header .sheet-back-btn {
+      cursor: pointer;
+      color: #333;
+      padding: 4px;
+    }
+    .sheet-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #222;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .pin-input-section {
+      padding: 18px 20px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .pin-box-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+      width: 100%;
+      max-width: 320px;
+      justify-content: space-between;
+    }
+    .pin-box {
+      width: 44px;
+      height: 48px;
+      border: 1px solid #d5d5d5;
+      border-radius: 6px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .pin-box.filled {
+      border-color: #999;
+    }
+    .pin-dot {
+      width: 10px;
+      height: 10px;
+      background: #111;
+      border-radius: 50%;
+      display: none;
+    }
+    .pin-box.filled .pin-dot {
+      display: block;
+    }
+    .pin-tips-row {
+      display: flex;
+      justify-content: flex-end;
+      width: 100%;
+      max-width: 320px;
+      font-size: 12px;
+    }
+    .pin-tips-row .link-forgot {
+      color: #1989fa;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .virtual-keypad {
+      background: #f2f3f5;
+      padding: 8px 6px 24px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      border-top: 1px solid #e2e4e8;
+    }
+    .key-btn {
+      height: 50px;
+      background: #fff;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 500;
+      color: #111;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      user-select: none;
+    }
+    .key-btn:active {
+      background: #e2e2e6;
+    }
+    .key-btn.key-empty {
+      background: transparent;
+      box-shadow: none;
+      cursor: default;
+    }
+    .key-btn.key-del {
+      background: #e5e6eb;
+      font-size: 18px;
+      color: #444;
+    }
+
+    /* ================= 城市选择弹窗 (从下往上弹出) ================= */
+    .city-modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 250;
+      display: none;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    .city-modal-overlay.active {
+      display: flex;
+    }
+
+    .city-bottom-sheet {
+      background: #fff;
+      border-top-left-radius: 16px;
+      border-top-right-radius: 16px;
+      width: 100%;
+      height: 78%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.15);
+      animation: citySheetUp 0.22s cubic-bezier(0.25, 1, 0.5, 1);
+      position: relative;
+    }
+
+    @keyframes citySheetUp {
+      0% { transform: translateY(100%); }
+      100% { transform: translateY(0); }
+    }
+
+    .city-sheet-header {
+      padding: 16px 16px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .city-current-label {
+      font-size: 15px;
+      font-weight: 600;
+      color: #111;
+    }
+    .city-current-name {
+      color: #111;
+      font-weight: bold;
+    }
+    .city-reposition-btn {
+      font-size: 13px;
+      color: #1989fa;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .city-reposition-btn:active {
+      opacity: 0.7;
+    }
+    .city-reposition-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .city-search-wrap {
+      padding: 0 16px 8px;
+    }
+    .city-search-box {
+      background: #f4f4f4;
+      border-radius: 18px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 8px;
+    }
+    .city-search-input {
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 13px;
+      color: #222;
+      flex: 1;
+      width: 100%;
+    }
+    .city-search-input::placeholder {
+      color: #999;
+    }
+
+    .city-scroll-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 16px 30px;
+      position: relative;
+      scrollbar-width: none;
+    }
+    .city-scroll-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    .city-hot-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #222;
+      margin: 4px 0 10px;
+    }
+    .city-hot-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+      padding-right: 18px;
+    }
+    .city-hot-pill {
+      background: #f4f5f7;
+      color: #222;
+      font-size: 13px;
+      height: 34px;
+      border-radius: 17px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .city-hot-pill:active {
+      background: #e5e6eb;
+    }
+    .city-hot-pill.active {
+      background: #e8f3ff;
+      color: #1989fa;
+      font-weight: 600;
+    }
+
+    .city-group-title {
+      font-size: 12px;
+      color: #888;
+      padding: 12px 0 6px;
+      font-weight: 500;
+    }
+    .city-item-row {
+      height: 42px;
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      color: #222;
+      border-bottom: 1px solid #f2f2f2;
+      cursor: pointer;
+      padding-right: 20px;
+    }
+    .city-item-row:active {
+      background: #fafafa;
+    }
+    .city-item-row.selected {
+      color: #1989fa;
+      font-weight: 600;
+    }
+
+    .city-index-sidebar {
+      position: absolute;
+      right: 4px;
+      top: 110px;
+      bottom: 20px;
+      width: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 1.5px;
+      z-index: 10;
+      user-select: none;
+    }
+    .city-index-letter {
+      font-size: 10px;
+      color: #666;
+      cursor: pointer;
+      padding: 1px 2px;
+      line-height: 1;
+    }
+    .city-index-letter:hover, .city-index-letter:active {
+      color: #1989fa;
+      font-weight: bold;
+    }
+
+    /* ================= PAGE 3: 联合登录 / 授权页 ================= */
+    .auth-page-container {
+      background: #fff;
+      flex: 1;
+      padding: 40px 24px 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .auth-logo-box {
+      border: 2px solid #e03838;
+      border-radius: 2px;
+      padding: 10px 14px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 36px;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    }
+    .auth-avatar-frame {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: #202020;
+      border: 3px solid #1a1a1a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 10px;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+    }
+    .auth-app-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #222;
+      letter-spacing: 0.5px;
+    }
+    .auth-info-section {
+      width: 100%;
+      text-align: left;
+      margin-bottom: 40px;
+    }
+    .auth-info-heading {
+      font-size: 15px;
+      font-weight: bold;
+      color: #222;
+      margin-bottom: 8px;
+    }
+    .auth-info-desc {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.6;
+    }
+    .btn-auth-confirm {
+      width: 100%;
+      height: 48px;
+      background: var(--auth-orange);
+      color: #fff;
+      border: none;
+      border-radius: 24px;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(235, 77, 45, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+    .btn-auth-confirm:active {
+      background: var(--auth-orange-hover);
+      transform: scale(0.99);
+    }
+    .auth-agreement-row {
+      display: flex;
+      align-items: center;
+      font-size: 12px;
+      color: #666;
+      gap: 6px;
+      cursor: pointer;
+    }
+    .auth-check-circle {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: var(--auth-orange);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .auth-agreement-link {
+      color: #3b82f6;
+      text-decoration: none;
+    }
+
+    /* ================= PAGE 4: 验证码输入页 ================= */
+    .verify-page-container {
+      background: #fff;
+      flex: 1;
+      padding: 36px 24px 30px;
+      display: flex;
+      flex-direction: column;
+    }
+    .verify-main-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: #111;
+      margin-bottom: 28px;
+      letter-spacing: 0.5px;
+    }
+    .verify-phone-hint {
+      font-size: 14px;
+      color: #333;
+      margin-bottom: 20px;
+    }
+    .verify-phone-hint .phone-num {
+      font-weight: 600;
+      margin-left: 6px;
+      letter-spacing: 1px;
+    }
+    .verify-code-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      width: 100%;
+      max-width: 340px;
+    }
+    .verify-code-box {
+      width: 48px;
+      height: 52px;
+      border: 1.5px solid #d5d5d5;
+      border-radius: 10px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 600;
+      color: #111;
+      transition: border-color 0.15s;
+    }
+    .verify-code-box.filled {
+      border-color: #999;
+    }
+    .verify-code-box.active-input {
+      border-color: #333;
+    }
+    .verify-code-dot {
+      width: 10px;
+      height: 10px;
+      background: #111;
+      border-radius: 50%;
+      display: none;
+    }
+    .verify-code-box.filled .verify-code-dot {
+      display: block;
+    }
+    .verify-tip-text {
+      font-size: 13px;
+      color: #888;
+      line-height: 1.7;
+      margin-bottom: 28px;
+    }
+    .verify-resend-row {
+      text-align: center;
+      font-size: 13px;
+      color: #bbb;
+    }
+    .verify-resend-row .resend-active {
+      color: #1989fa;
+      cursor: pointer;
+    }
+
+    /* ================= PAGE 5: 设置支付密码页 ================= */
+    .setpwd-page-container {
+      background: #fff;
+      flex: 1;
+      padding: 36px 24px 30px;
+      display: flex;
+      flex-direction: column;
+    }
+    .setpwd-main-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: #111;
+      margin-bottom: 28px;
+      letter-spacing: 0.5px;
+    }
+    .setpwd-code-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      width: 100%;
+      max-width: 340px;
+    }
+    .setpwd-code-box {
+      width: 48px;
+      height: 52px;
+      border: 1.5px solid #d5d5d5;
+      border-radius: 10px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.15s;
+    }
+    .setpwd-code-box.filled {
+      border-color: #999;
+    }
+    .setpwd-code-box.active-input {
+      border-color: var(--primary-red);
+    }
+    .setpwd-code-dot {
+      width: 10px;
+      height: 10px;
+      background: #111;
+      border-radius: 50%;
+      display: none;
+    }
+    .setpwd-code-box.filled .setpwd-code-dot {
+      display: block;
+    }
+    .setpwd-tip-text {
+      font-size: 13px;
+      color: #888;
+      line-height: 1.7;
+    }
+
+    /* Toast */
+    .toast-box {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.85);
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-size: 13px;
+      z-index: 999;
+      display: none;
+      text-align: center;
+      pointer-events: none;
+    }
+    .toast-box.show {
+      display: block;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 0;
+        background: #000;
+      }
+      .device-wrapper {
+        width: 100vw;
+        height: 100vh;
+        border-radius: 0;
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 手机外壳容器 -->
+  <div class="device-wrapper">
+    <div class="device-notch"></div>
+
+    <div class="device-screen">
+      <!-- iOS 顶部系统状态栏 -->
+      <div class="status-bar">
+        <span>17:31</span>
+        <div class="status-icons">
+          <!-- 信号 -->
+          <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 18.25c-.2.2-.2.51 0 .71.2.2.51.2.71 0l.64-.64C7.26 19.38 9.51 20.08 12 20.08s4.74-.7 6.3-1.76l.64.64c.2.2.51.2.71 0 .2-.2.2-.51 0-.71l-.62-.64C20.26 16.07 21 14.12 21 12c0-4.97-4.03-9-9-9zm0 15c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/></svg>
+          <!-- Wifi -->
+          <svg viewBox="0 0 24 24"><path d="M12 4C7.31 4 3.07 5.9 0 8.98L12 21 24 8.98A17.93 17.93 0 0012 4z"/></svg>
+          <!-- 电池 -->
+          <svg viewBox="0 0 24 24"><path d="M17 5v14H7V5h10m1.5-2h-13C4.67 3 4 3.67 4 4.5v15c0 .83.67 1.5 1.5 1.5h13c.83 0 1.5-.67 1.5-1.5v-15c0-.83-.67-1.5-1.5-1.5zM21 9v6c.55 0 1-.45 1-1v-4c0-.55-.45-1-1-1z"/></svg>
+        </div>
+      </div>
+
+      <!-- 顶层 Webview 浏览器栏 (包含 × 与 ···) -->
+      <div class="webview-header">
+        <div class="left-actions">
+          <div class="icon-btn" onclick="navigateToPage('home')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </div>
+        </div>
+        <div class="title-box">
+          <div class="title-text">API商城</div>
+          <div class="domain-text">m.quanmaigo.com</div>
+        </div>
+        <div class="right-actions">
+          <div class="icon-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- 页面视口容器 -->
+      <div class="pages-container">
+
+        <!-- ================= 页面 1: 商城首页 ================= -->
+        <div class="page active" id="page-home">
+          <!-- 搜索栏 -->
+          <div class="home-search-bar">
+            <div class="location-selector" onclick="openCityModal()">
+              <span id="homeLocationText">武汉</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+            </div>
+            <div class="search-input-box">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+              <span>请输入商品</span>
+            </div>
+            <div class="home-header-icons">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/></svg>
+              <div class="badge-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                <div class="badge-num">21</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 标签分类 -->
+          <div class="category-tabs-scroll">
+            <div class="tab-item active">推荐</div>
+            <div class="tab-item">个护清洁</div>
+            <div class="tab-item">食品</div>
+            <div class="tab-item">家纺服饰</div>
+            <div class="tab-item">资产兑换</div>
+            <div class="tab-item">商超专区</div>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#999" style="flex-shrink: 0;"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+
+          <!-- 专属积分横幅 (点击直接进入“选择积分页”) -->
+          <div class="banner-container">
+            <div class="main-banner" onclick="navigateToPage('points')">
+              <svg class="banner-bg-graphic" width="140" height="140" viewBox="0 0 200 200" fill="currentColor">
+                <path d="M10,100 C40,40 160,40 190,100 C160,160 40,160 10,100 Z"/>
+              </svg>
+              <div class="banner-content">
+                <div class="banner-tag">★ 特色资源</div>
+                <div class="banner-title">资产专享 · 自由兑换</div>
+                <div class="banner-sub">进入资源前勾选资产 · 有效期由近及远扣减</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 核心金刚区网格 -->
+          <div class="section-block">
+            <div class="section-title-wrap">
+              <span class="section-line"></span>
+              <span class="diamond">◆</span>
+              <span class="section-title">精选服务与资产</span>
+              <span class="diamond">◆</span>
+              <span class="section-line"></span>
+            </div>
+            <div class="icon-grid">
+              <!-- 积分入口 (点击进入选择积分页) -->
+              <div class="grid-item" onclick="navigateToPage('points')">
+                <div class="icon-wrapper" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color:#fff; font-size: 22px; font-weight: bold; box-shadow: 0 4px 10px rgba(245, 158, 11, 0.35);">🪙</div>
+                <div class="icon-label" style="color:#d97706; font-weight:bold;">选择资产</div>
+              </div>
+
+              <div class="grid-item" onclick="navigateToPage('points')">
+                <div class="icon-wrapper" style="background:#e8f4ec;"><span style="font-size:22px;">🎬</span></div>
+                <div class="icon-label">电影频道</div>
+              </div>
+              <div class="grid-item" onclick="navigateToPage('points')">
+                <div class="icon-wrapper" style="background:#e8f5fb;"><span style="font-size:22px;">🏙️</span></div>
+                <div class="icon-label">本地生活</div>
+              </div>
+              <div class="grid-item" onclick="navigateToPage('points')">
+                <div class="icon-wrapper" style="background:#edf4fc;"><span style="font-size:22px;">🧴</span></div>
+                <div class="icon-label">商超便利</div>
+              </div>
+              <div class="grid-item" onclick="navigateToPage('points')">
+                <div class="icon-wrapper" style="background:#f4f4f4;"><span style="font-size:22px;">🏀</span></div>
+                <div class="icon-label">蛋糕烘焙</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="height: 60px;"></div>
+        </div>
+
+
+        <!-- ================= 页面 2: 选择积分页 (核心实现) ================= -->
+        <div class="page" id="page-points">
+          
+          <!-- H5 顶部导航栏：左侧返回箭头 <，居中“选择资产”，右侧带定位组件“武汉 ▾” -->
+          <div class="points-nav-bar">
+            <div class="points-nav-back" onclick="navigateToPage('home')">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+            </div>
+            <div class="points-nav-title">选择资产</div>
+            <div class="city-location-btn" onclick="openCityModal()">
+              <span id="pointsLocationText">武汉</span>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+            </div>
+          </div>
+
+          <!-- 顶部横幅说明文案 (未勾选时说明规则，勾选时展示“折合余额xx”) -->
+          <div class="points-notice-bar">
+            <div class="points-notice-text" id="pointsNoticeText">
+              核销时请报【企业福利】；含服务费，实际可用余额以页面显示为准；售后请携带小票与门店工作人员沟通；胖东来及烟酒类商品不可用。
+            </div>
+          </div>
+
+          <!-- 积分列表 (圆圈 + 水果暗纹卡片) -->
+          <div class="points-list-scroll">
+
+            <!-- 仅展示一种通用积分类型 (1:1 还原截图设计) -->
+            <div class="points-row-item" id="onlyPointsItem" data-id="p1" data-amount="35.00" onclick="toggleSelectPoint(this)">
+              <!-- 左侧单选/勾选圆圈 -->
+              <div class="points-check-circle">
+                <svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+
+              <!-- 右侧卡片主体：纯净卡面，仅大字金额 + 通用积分 + 水果暗纹水印 -->
+              <div class="points-card-card">
+                <!-- SVG 水果暗纹背景 (1:1 还原截图质感：切片柠檬、西瓜、苹果、葡萄轮廓) -->
+                <svg class="points-fruit-watermark" viewBox="0 0 320 146" preserveAspectRatio="xMidYMid slice" fill="none" stroke="#e8dfd1" stroke-width="1.6">
+                  <!-- 顶部柠檬/橙子轮廓 -->
+                  <g transform="translate(135, -5) scale(0.95)">
+                    <circle cx="28" cy="28" r="24" stroke-dasharray="2 0"/>
+                    <circle cx="28" cy="28" r="18" stroke-dasharray="3 2"/>
+                    <path d="M28 15 C31 20 33 22 35 24 M28 41 C31 36 33 34 35 32"/>
+                    <path d="M15 28 C20 31 22 33 24 35 M41 28 C36 31 34 33 32 35"/>
+                    <circle cx="28" cy="28" r="3.5" fill="#f4ece1"/>
+                  </g>
+                  
+                  <!-- 右上方西瓜切片轮廓 -->
+                  <g transform="translate(240, -18) scale(1.1)">
+                    <path d="M10 20 Q50 6 90 20 Q50 55 10 20 Z"/>
+                    <path d="M16 22 Q50 11 84 22"/>
+                    <circle cx="40" cy="24" r="1.5" fill="#e8dfd1"/>
+                    <circle cx="55" cy="22" r="1.5" fill="#e8dfd1"/>
+                    <circle cx="68" cy="25" r="1.5" fill="#e8dfd1"/>
+                  </g>
+
+                  <!-- 中部苹果轮廓 -->
+                  <g transform="translate(200, 36) scale(0.9)">
+                    <path d="M22 10 C14 2 6 2 2 12 C-3 24 3 36 12 40 C17 42 20 40 22 38 C24 40 27 42 32 40 C41 36 47 24 42 12 C38 2 30 2 22 10 Z"/>
+                    <path d="M22 10 Q24 3 29 1" stroke-linecap="round"/>
+                    <path d="M25 4 Q32 2 34 6 Q29 8 25 4 Z"/>
+                  </g>
+
+                  <!-- 左下方樱桃/小水果轮廓 -->
+                  <g transform="translate(20, 68) scale(0.85)">
+                    <circle cx="16" cy="30" r="11"/>
+                    <circle cx="34" cy="32" r="11"/>
+                    <path d="M16 19 Q25 8 32 4 M34 21 Q33 12 32 4" stroke-linecap="round"/>
+                  </g>
+
+                  <!-- 底部葡萄串轮廓 -->
+                  <g transform="translate(120, 78) scale(0.8)">
+                    <circle cx="20" cy="12" r="7"/><circle cx="33" cy="12" r="7"/><circle cx="46" cy="12" r="7"/>
+                    <circle cx="26" cy="22" r="7"/><circle cx="39" cy="22" r="7"/>
+                    <circle cx="32" cy="32" r="7"/>
+                    <path d="M33 5 Q35 0 38 -4" stroke-linecap="round"/>
+                  </g>
+                </svg>
+
+                <div class="points-card-header">
+                  <div class="points-amount-val" id="cardPointsAmount">35.00</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- 底部确认按钮 (折算余额 ≤ 0 时置灰) -->
+          <div class="fixed-bottom-bar">
+            <button class="btn-confirm disabled" id="btnConfirmPoints" disabled onclick="openPasswordModal()">确认</button>
+          </div>
+        </div>
+
+
+        <!-- ================= 页面 3: 联合登录 / 授权页 ================= -->
+        <div class="page" id="page-auth">
+          <div class="points-nav-bar" style="border-bottom: none;">
+            <div class="points-nav-back" onclick="navigateToPage('points')">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+            </div>
+          </div>
+
+          <div class="auth-page-container">
+            <div class="auth-logo-box">
+              <div class="auth-avatar-frame">
+                <svg width="80" height="80" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="46" fill="#e5dfd5"/>
+                  <path d="M20 75 Q50 20 80 75 Z" fill="#2d3032"/>
+                  <circle cx="50" cy="45" r="16" fill="#f6d5b8"/>
+                  <path d="M36 44 Q50 49 64 44 Q64 52 50 56 Q36 52 36 44 Z" fill="#222"/>
+                  <circle cx="44" cy="42" r="2.5" fill="#222"/>
+                  <circle cx="56" cy="42" r="2.5" fill="#222"/>
+                  <path d="M60 40 Q80 30 85 45 Q75 42 60 44 Z" fill="#222"/>
+                </svg>
+              </div>
+              <div class="auth-app-title">qm积分专属商城</div>
+            </div>
+
+            <div class="auth-info-section">
+              <div class="auth-info-heading">授权说明：</div>
+              <div class="auth-info-desc">
+                服务内容由qm电影/商超平台提供，请确认授权使用选中的积分资产抵扣消费额度
+              </div>
+            </div>
+
+            <button class="btn-auth-confirm" onclick="handleAuthConfirm()">确认授权</button>
+
+            <div class="auth-agreement-row" onclick="toggleAgreement()">
+              <div class="auth-check-circle" id="authCheckIcon">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <span>我已阅读并同意 <a href="javascript:void(0)" class="auth-agreement-link" onclick="event.stopPropagation(); showToast('打开用户授权登录协议')">《用户授权登录协议》</a></span>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- ================= 页面 4: 输入验证码页 ================= -->
+        <div class="page" id="page-verify">
+          <div class="points-nav-bar" style="border-bottom: none;">
+            <div class="points-nav-back" onclick="closePasswordModal(); navigateToPage('points')">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+            </div>
+          </div>
+
+          <div class="verify-page-container">
+            <div class="verify-main-title">输入6位验证码</div>
+
+            <div class="verify-phone-hint">
+              验证码已发送至<span class="phone-num">15076701713</span>
+            </div>
+
+            <div class="verify-code-row">
+              <div class="verify-code-box" id="vcode-0"><div class="verify-code-dot"></div></div>
+              <div class="verify-code-box" id="vcode-1"><div class="verify-code-dot"></div></div>
+              <div class="verify-code-box" id="vcode-2"><div class="verify-code-dot"></div></div>
+              <div class="verify-code-box" id="vcode-3"><div class="verify-code-dot"></div></div>
+              <div class="verify-code-box" id="vcode-4"><div class="verify-code-dot"></div></div>
+              <div class="verify-code-box" id="vcode-5"><div class="verify-code-dot"></div></div>
+            </div>
+
+            <div class="verify-tip-text">验证通过后，请立即设置支付密码，以保障资金安全。</div>
+
+            <div class="verify-resend-row" id="verifyResendRow">
+              未收到短信？<span id="resendBtn">获取语音验证码<span id="resendCountdown">27</span>S</span>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- ================= 页面 5: 设置支付密码页 ================= -->
+        <div class="page" id="page-setpwd">
+          <div class="points-nav-bar" style="border-bottom: none;">
+            <div class="points-nav-back" onclick="navigateToPage('verify'); resetSetPwdInput()">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+            </div>
+          </div>
+
+          <div class="setpwd-page-container">
+            <div class="setpwd-main-title">请设置支付密码</div>
+
+            <div class="setpwd-code-row">
+              <div class="setpwd-code-box" id="spwd-0"><div class="setpwd-code-dot"></div></div>
+              <div class="setpwd-code-box" id="spwd-1"><div class="setpwd-code-dot"></div></div>
+              <div class="setpwd-code-box" id="spwd-2"><div class="setpwd-code-dot"></div></div>
+              <div class="setpwd-code-box" id="spwd-3"><div class="setpwd-code-dot"></div></div>
+              <div class="setpwd-code-box" id="spwd-4"><div class="setpwd-code-dot"></div></div>
+              <div class="setpwd-code-box" id="spwd-5"><div class="setpwd-code-dot"></div></div>
+            </div>
+
+            <div class="setpwd-tip-text">请设置6位纯数字的支付密码，以保障资金安全。</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ================= 支付密码弹窗 ================= -->
+      <div class="modal-overlay" id="passwordModalOverlay">
+        <div class="bottom-sheet">
+          <div class="sheet-header">
+            <div class="sheet-back-btn" onclick="closePasswordModal()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+            </div>
+            <div class="sheet-title">输入安全支付密码</div>
+            <div style="width: 24px;"></div>
+          </div>
+
+          <div class="pin-input-section">
+            <div class="pin-box-row">
+              <div class="pin-box" id="pin-0"><div class="pin-dot"></div></div>
+              <div class="pin-box" id="pin-1"><div class="pin-dot"></div></div>
+              <div class="pin-box" id="pin-2"><div class="pin-dot"></div></div>
+              <div class="pin-box" id="pin-3"><div class="pin-dot"></div></div>
+              <div class="pin-box" id="pin-4"><div class="pin-dot"></div></div>
+              <div class="pin-box" id="pin-5"><div class="pin-dot"></div></div>
+            </div>
+
+            <div class="pin-tips-row">
+              <span class="link-forgot" onclick="openVerifyPage()">忘记密码</span>
+            </div>
+          </div>
+
+          <div class="virtual-keypad">
+            <div class="key-btn" onclick="pressKey('1')">1</div>
+            <div class="key-btn" onclick="pressKey('2')">2</div>
+            <div class="key-btn" onclick="pressKey('3')">3</div>
+            <div class="key-btn" onclick="pressKey('4')">4</div>
+            <div class="key-btn" onclick="pressKey('5')">5</div>
+            <div class="key-btn" onclick="pressKey('6')">6</div>
+            <div class="key-btn" onclick="pressKey('7')">7</div>
+            <div class="key-btn" onclick="pressKey('8')">8</div>
+            <div class="key-btn" onclick="pressKey('9')">9</div>
+            <div class="key-btn key-empty"></div>
+            <div class="key-btn" onclick="pressKey('0')">0</div>
+            <div class="key-btn key-del" onclick="pressKey('DEL')">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= 城市选择弹窗 (从下往上弹出) ================= -->
+      <div class="city-modal-overlay" id="cityModalOverlay" onclick="handleCityOverlayClick(event)">
+        <div class="city-bottom-sheet" id="cityBottomSheet" onclick="event.stopPropagation()">
+          
+          <div class="city-sheet-header">
+            <div class="city-current-label">
+              当前：<span class="city-current-name" id="modalCurrentCityText">武汉</span>
+            </div>
+            <div class="city-reposition-btn" onclick="reLocateCity()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <circle cx="12" cy="12" r="8"/>
+                <circle cx="12" cy="12" r="3" fill="currentColor"/>
+                <line x1="12" y1="2" x2="12" y2="5"/>
+                <line x1="12" y1="19" x2="12" y2="22"/>
+                <line x1="2" y1="12" x2="5" y2="12"/>
+                <line x1="19" y1="12" x2="22" y2="12"/>
+              </svg>
+              <span>重新定位</span>
+            </div>
+          </div>
+
+          <div class="city-search-wrap">
+            <div class="city-search-box">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+              <input type="text" id="citySearchInput" class="city-search-input" placeholder="输入城市名或拼音" oninput="filterCities(this.value)">
+            </div>
+          </div>
+
+          <div class="city-scroll-content" id="cityScrollContent">
+            <!-- 热门城市 -->
+            <div id="hotCitiesSection">
+              <div class="city-hot-title">热门城市</div>
+              <div class="city-hot-grid">
+                <div class="city-hot-pill" onclick="selectCity('北京市')">北京市</div>
+                <div class="city-hot-pill" onclick="selectCity('上海市')">上海市</div>
+                <div class="city-hot-pill" onclick="selectCity('广州市')">广州市</div>
+                <div class="city-hot-pill" onclick="selectCity('深圳市')">深圳市</div>
+                <div class="city-hot-pill" onclick="selectCity('重庆市')">重庆市</div>
+                <div class="city-hot-pill active" id="pill-wuhan" onclick="selectCity('武汉市')">武汉市</div>
+              </div>
+            </div>
+
+            <!-- 字母分组城市列表 -->
+            <div id="cityAlphabetList">
+              <div class="city-group-block" id="city-group-A">
+                <div class="city-group-title" id="city-anchor-A">A</div>
+                <div class="city-item-row" data-pinyin="alashenmeng" onclick="selectCity('阿拉善盟')">阿拉善盟</div>
+                <div class="city-item-row" data-pinyin="anshanshi" onclick="selectCity('鞍山市')">鞍山市</div>
+                <div class="city-item-row" data-pinyin="anqingshi" onclick="selectCity('安庆市')">安庆市</div>
+                <div class="city-item-row" data-pinyin="anyangshi" onclick="selectCity('安阳市')">安阳市</div>
+                <div class="city-item-row" data-pinyin="abazangzuqiangzuzizhizhou" onclick="selectCity('阿坝藏族羌族自治州')">阿坝藏族羌族自治州</div>
+                <div class="city-item-row" data-pinyin="anshunshi" onclick="selectCity('安顺市')">安顺市</div>
+                <div class="city-item-row" data-pinyin="ankangshi" onclick="selectCity('安康市')">安康市</div>
+                <div class="city-item-row" data-pinyin="alidiqu" onclick="selectCity('阿里地区')">阿里地区</div>
+              </div>
+
+              <div class="city-group-block" id="city-group-B">
+                <div class="city-group-title" id="city-anchor-B">B</div>
+                <div class="city-item-row" data-pinyin="beijingshi" onclick="selectCity('北京市')">北京市</div>
+                <div class="city-item-row" data-pinyin="baodingshi" onclick="selectCity('保定市')">保定市</div>
+                <div class="city-item-row" data-pinyin="baotoushi" onclick="selectCity('包头市')">包头市</div>
+                <div class="city-item-row" data-pinyin="benxishi" onclick="selectCity('本溪市')">本溪市</div>
+                <div class="city-item-row" data-pinyin="bengbushi" onclick="selectCity('蚌埠市')">蚌埠市</div>
+              </div>
+
+              <div class="city-group-block" id="city-group-C">
+                <div class="city-group-title" id="city-anchor-C">C</div>
+                <div class="city-item-row" data-pinyin="chengdushi" onclick="selectCity('成都市')">成都市</div>
+                <div class="city-item-row" data-pinyin="chongqingshi" onclick="selectCity('重庆市')">重庆市</div>
+                <div class="city-item-row" data-pinyin="changshashi" onclick="selectCity('长沙市')">长沙市</div>
+                <div class="city-item-row" data-pinyin="changchunshi" onclick="selectCity('长春市')">长春市</div>
+              </div>
+
+              <div class="city-group-block" id="city-group-G">
+                <div class="city-group-title" id="city-anchor-G">G</div>
+                <div class="city-item-row" data-pinyin="guangzhoushi" onclick="selectCity('广州市')">广州市</div>
+                <div class="city-item-row" data-pinyin="guiyangshi" onclick="selectCity('贵阳市')">贵阳市</div>
+                <div class="city-item-row" data-pinyin="guilinshi" onclick="selectCity('桂林市')">桂林市</div>
+              </div>
+
+              <div class="city-group-block" id="city-group-H">
+                <div class="city-group-title" id="city-anchor-H">H</div>
+                <div class="city-item-row" data-pinyin="hangzhoushi" onclick="selectCity('杭州市')">杭州市</div>
+                <div class="city-item-row" data-pinyin="hefeishi" onclick="selectCity('合肥市')">合肥市</div>
+                <div class="city-item-row" data-pinyin="haerbinshi" onclick="selectCity('哈尔滨市')">哈尔滨市</div>
+              </div>
+
+              <div class="city-group-block" id="city-group-S">
+                <div class="city-group-title" id="city-anchor-S">S</div>
+                <div class="city-item-row" data-pinyin="shanghaishi" onclick="selectCity('上海市')">上海市</div>
+                <div class="city-item-row" data-pinyin="shenzhenshi" onclick="selectCity('深圳市')">深圳市</div>
+                <div class="city-item-row" data-pinyin="suzhoushi" onclick="selectCity('苏州市')">苏州市</div>
+              </div>
+
+              <div class="city-group-block" id="city-group-W">
+                <div class="city-group-title" id="city-anchor-W">W</div>
+                <div class="city-item-row selected" data-pinyin="wuhanshi" onclick="selectCity('武汉市')">武汉市</div>
+                <div class="city-item-row" data-pinyin="wuxishi" onclick="selectCity('无锡市')">无锡市</div>
+                <div class="city-item-row" data-pinyin="wenzhoushi" onclick="selectCity('温州市')">温州市</div>
+              </div>
+
+              <div class="city-group-block" id="city-group-Z">
+                <div class="city-group-title" id="city-anchor-Z">Z</div>
+                <div class="city-item-row" data-pinyin="zhengzhoushi" onclick="selectCity('郑州市')">郑州市</div>
+                <div class="city-item-row" data-pinyin="zhuhaishi" onclick="selectCity('珠海市')">珠海市</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 右侧字母快速索引栏 -->
+          <div class="city-index-sidebar" id="cityIndexSidebar">
+            <span class="city-index-letter" onclick="scrollToLetter('A')">A</span>
+            <span class="city-index-letter" onclick="scrollToLetter('B')">B</span>
+            <span class="city-index-letter" onclick="scrollToLetter('C')">C</span>
+            <span class="city-index-letter" onclick="scrollToLetter('G')">G</span>
+            <span class="city-index-letter" onclick="scrollToLetter('H')">H</span>
+            <span class="city-index-letter" onclick="scrollToLetter('S')">S</span>
+            <span class="city-index-letter" onclick="scrollToLetter('W')">W</span>
+            <span class="city-index-letter" onclick="scrollToLetter('Z')">Z</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 底部全局导航 (仅首页展示) -->
+      <div class="bottom-tab-bar" id="homeBottomBar">
+        <div class="tab-nav-btn active" onclick="navigateToPage('home')">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+          <span>首页</span>
+        </div>
+        <div class="tab-nav-btn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/></svg>
+          <span>分类</span>
+        </div>
+        <div class="tab-nav-btn">
+          <div class="badge-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+            <div class="badge-num">24</div>
+          </div>
+          <span>购物车</span>
+        </div>
+        <div class="tab-nav-btn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          <span>我的</span>
+        </div>
+      </div>
+
+      <!-- Toast 提示容器 -->
+      <div class="toast-box" id="appToast">提示内容</div>
+    </div>
+  </div>
+
+  <script>
+    let selectedPoints = [];
+    let enteredPin = '';
+    let isAgreed = true;
+    let currentSelectedCity = '武汉';
+
+    // 页面跳转
+    function navigateToPage(pageId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      const target = document.getElementById(`page-${pageId}`);
+      if (target) {
+        target.classList.add('active');
+      }
+
+      const bottomBar = document.getElementById('homeBottomBar');
+      if (pageId === 'home') {
+        bottomBar.style.display = 'flex';
+      } else {
+        bottomBar.style.display = 'none';
+      }
+    }
+
+    // 服务费与折算配置
+    // 公式：（选中金额 - 服务费固定金额）÷（1 + 服务费费率）
+    // 取整规则：保留两位小数，向下取整
+    // 例如：固定服务费 2 元，费率 5%：选中 35 元 => (35-2)/1.05 = 31.42857 => 31.42
+    const SERVICE_FIXED_FEE = 2.00; // 运营商固定服务费 2元
+    const SERVICE_FEE_RATE = 0.05;  // 服务费费率 5%
+
+    function calculateConvertedBalance(amount) {
+      const raw = (amount - SERVICE_FIXED_FEE) / (1 + SERVICE_FEE_RATE);
+      const adjusted = Math.round(raw * 10000) / 10000;
+      return Math.floor(adjusted * 100) / 100;
+    }
+
+    // 积分点击选择交互
+    function toggleSelectPoint(element) {
+      const idx = selectedPoints.indexOf(element);
+      if (idx > -1) {
+        selectedPoints.splice(idx, 1);
+        element.classList.remove('selected');
+      } else {
+        selectedPoints.push(element);
+        element.classList.add('selected');
+      }
+      refreshPointsState();
+    }
+
+    // 刷新积分选中状态与计算折算余额
+    function refreshPointsState() {
+      let totalAmount = 0;
+      selectedPoints.forEach(item => {
+        const amt = parseFloat(item.getAttribute('data-amount') || 0);
+        totalAmount += amt;
+      });
+
+      const notice = document.getElementById('pointsNoticeText');
+      const btnConfirm = document.getElementById('btnConfirmPoints');
+
+      if (selectedPoints.length > 0) {
+        // 计算折算余额：（选中金额 - 服务费固定金额）÷（1 + 服务费费率），向下取整
+        const converted = calculateConvertedBalance(totalAmount);
+        const convertedStr = converted.toFixed(2);
+
+        // 选中时横幅展示：“折合余额xx” (积分无单位)
+        if (notice) {
+          notice.className = 'points-notice-text selected-state';
+          notice.innerHTML = `折合余额 <span style="font-size: 17px; font-weight: 800;">${convertedStr}</span>`;
+        }
+
+        // 折算余额 ≤ 0 时，确认键置灰
+        if (btnConfirm) {
+          if (converted <= 0) {
+            btnConfirm.disabled = true;
+            btnConfirm.classList.add('disabled');
+          } else {
+            btnConfirm.disabled = false;
+            btnConfirm.classList.remove('disabled');
+          }
+        }
+      } else {
+        // 未勾选默认提示文案
+        if (notice) {
+          notice.className = 'points-notice-text';
+          notice.innerHTML = `核销时请报【企业福利】；含服务费，实际可用余额以页面显示为准；售后请携带小票与门店工作人员沟通；胖东来及烟酒类商品不可用。`;
+        }
+        if (btnConfirm) {
+          btnConfirm.disabled = true;
+          btnConfirm.classList.add('disabled');
+        }
+      }
+    }
+
+    // 密码弹窗控制
+    function openPasswordModal() {
+      if (selectedPoints.length === 0) {
+        showToast('请至少选择一项资产');
+        return;
+      }
+      let totalAmount = selectedPoints.reduce((acc, item) => acc + parseFloat(item.getAttribute('data-amount') || 0), 0);
+      let converted = calculateConvertedBalance(totalAmount);
+      if (converted <= 0) {
+        showToast('折算余额不足（≤0），无法确认');
+        return;
+      }
+      enteredPin = '';
+      updatePinDisplay();
+      document.getElementById('passwordModalOverlay').classList.add('active');
+    }
+
+    function closePasswordModal() {
+      document.getElementById('passwordModalOverlay').classList.remove('active');
+      enteredPin = '';
+      updatePinDisplay();
+    }
+
+    function pressKey(key) {
+      if (key === 'DEL') {
+        if (enteredPin.length > 0) {
+          enteredPin = enteredPin.slice(0, -1);
+        }
+      } else if (enteredPin.length < 6) {
+        enteredPin += key;
+      }
+      updatePinDisplay();
+
+      if (enteredPin.length === 6) {
+        setTimeout(() => {
+          closePasswordModal();
+          navigateToPage('auth');
+        }, 180);
+      }
+    }
+
+    function updatePinDisplay() {
+      for (let i = 0; i < 6; i++) {
+        const box = document.getElementById(`pin-${i}`);
+        if (i < enteredPin.length) {
+          box.classList.add('filled');
+        } else {
+          box.classList.remove('filled');
+        }
+      }
+    }
+
+    // 授权页交互
+    function toggleAgreement() {
+      isAgreed = !isAgreed;
+      const icon = document.getElementById('authCheckIcon');
+      if (isAgreed) {
+        icon.style.background = 'var(--auth-orange)';
+        icon.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg>';
+      } else {
+        icon.style.background = '#ccc';
+        icon.innerHTML = '';
+      }
+    }
+
+    function handleAuthConfirm() {
+      if (!isAgreed) {
+        showToast('请先勾选并同意用户协议');
+        return;
+      }
+      showToast('授权成功，正在进入特色消费资源...');
+    }
+
+    // ================= 城市选择弹窗逻辑 =================
+    function openCityModal() {
+      const overlay = document.getElementById('cityModalOverlay');
+      if (overlay) {
+        overlay.classList.add('active');
+        const input = document.getElementById('citySearchInput');
+        if (input) {
+          input.value = '';
+          filterCities('');
+        }
+      }
+    }
+
+    function closeCityModal() {
+      const overlay = document.getElementById('cityModalOverlay');
+      if (overlay) {
+        overlay.classList.remove('active');
+      }
+    }
+
+    function handleCityOverlayClick(e) {
+      if (e.target === document.getElementById('cityModalOverlay')) {
+        closeCityModal();
+      }
+    }
+
+    function selectCity(cityName) {
+      const shortName = cityName.replace(/市|地区|藏族羌族自治州|土家族苗族自治州|盟/g, '');
+      const displayName = shortName.length > 4 ? shortName.slice(0, 4) : shortName;
+      currentSelectedCity = displayName;
+
+      const pointsLoc = document.getElementById('pointsLocationText');
+      if (pointsLoc) pointsLoc.innerText = displayName;
+
+      const homeLoc = document.getElementById('homeLocationText');
+      if (homeLoc) homeLoc.innerText = displayName;
+
+      const modalLoc = document.getElementById('modalCurrentCityText');
+      if (modalLoc) modalLoc.innerText = cityName;
+
+      document.querySelectorAll('.city-hot-pill').forEach(pill => {
+        if (pill.innerText === cityName || pill.innerText === displayName || pill.innerText === (displayName + '市')) {
+          pill.classList.add('active');
+        } else {
+          pill.classList.remove('active');
+        }
+      });
+
+      document.querySelectorAll('.city-item-row').forEach(row => {
+        if (row.innerText === cityName) {
+          row.classList.add('selected');
+        } else {
+          row.classList.remove('selected');
+        }
+      });
+
+      showToast(`已切换至 ${cityName}`);
+      closeCityModal();
+    }
+
+    function reLocateCity() {
+      showToast('正在重新获取定位...');
+      setTimeout(() => {
+        selectCity('武汉市');
+        showToast('定位成功：当前位于武汉市');
+      }, 500);
+    }
+
+    function scrollToLetter(letter) {
+      const anchor = document.getElementById('city-anchor-' + letter);
+      const scrollContainer = document.getElementById('cityScrollContent');
+      if (anchor && scrollContainer) {
+        const offsetTop = anchor.offsetTop - 12;
+        scrollContainer.scrollTo({
+          top: offsetTop,
+          behavior: 'smooth'
+        });
+      }
+    }
+
+    function filterCities(keyword) {
+      const kw = (keyword || '').trim().toLowerCase();
+      const hotSection = document.getElementById('hotCitiesSection');
+      const sidebar = document.getElementById('cityIndexSidebar');
+
+      if (!kw) {
+        if (hotSection) hotSection.style.display = 'block';
+        if (sidebar) sidebar.style.display = 'flex';
+        document.querySelectorAll('.city-group-block').forEach(b => b.style.display = 'block');
+        document.querySelectorAll('.city-item-row').forEach(r => r.style.display = 'flex');
+        return;
+      }
+
+      if (hotSection) hotSection.style.display = 'none';
+      if (sidebar) sidebar.style.display = 'none';
+
+      document.querySelectorAll('.city-group-block').forEach(group => {
+        let hasMatch = false;
+        const rows = group.querySelectorAll('.city-item-row');
+        rows.forEach(row => {
+          const name = row.innerText.toLowerCase();
+          const pinyin = (row.getAttribute('data-pinyin') || '').toLowerCase();
+          if (name.includes(kw) || pinyin.includes(kw)) {
+            row.style.display = 'flex';
+            hasMatch = true;
+          } else {
+            row.style.display = 'none';
+          }
+        });
+        group.style.display = hasMatch ? 'block' : 'none';
+      });
+    }
+
+    // ================= 验证码输入页逻辑 =================
+    let verifyCode = '';
+    let resendTimer = null;
+    let resendSeconds = 27;
+
+    function openVerifyPage() {
+      closePasswordModal();
+      verifyCode = '';
+      updateVerifyDisplay();
+      navigateToPage('verify');
+      startResendCountdown();
+      // 激活原生键盘输入监听
+      document.addEventListener('keydown', handleVerifyKeydown);
+    }
+
+    function handleVerifyKeydown(e) {
+      const activePage = document.getElementById('page-verify');
+      if (!activePage || !activePage.classList.contains('active')) {
+        document.removeEventListener('keydown', handleVerifyKeydown);
+        return;
+      }
+      if (e.key >= '0' && e.key <= '9' && verifyCode.length < 6) {
+        verifyCode += e.key;
+        updateVerifyDisplay();
+        if (verifyCode.length === 6) {
+          setTimeout(() => {
+            document.removeEventListener('keydown', handleVerifyKeydown);
+            showToast('验证通过');
+            setTimeout(() => {
+              openSetPwdPage();
+            }, 600);
+          }, 200);
+        }
+      } else if (e.key === 'Backspace' && verifyCode.length > 0) {
+        verifyCode = verifyCode.slice(0, -1);
+        updateVerifyDisplay();
+      }
+    }
+
+    // 同时支持触摸设备：点击输入框区域时弹出隐藏 input
+    function initVerifyTouchInput() {
+      const row = document.querySelector('.verify-code-row');
+      if (!row) return;
+
+      // 创建隐藏的 input 用于移动端唤起键盘
+      let hiddenInput = document.getElementById('verifyHiddenInput');
+      if (!hiddenInput) {
+        hiddenInput = document.createElement('input');
+        hiddenInput.id = 'verifyHiddenInput';
+        hiddenInput.type = 'tel';
+        hiddenInput.inputMode = 'numeric';
+        hiddenInput.pattern = '[0-9]*';
+        hiddenInput.style.cssText = 'position:absolute;left:-9999px;top:0;width:1px;height:1px;opacity:0;';
+        hiddenInput.maxLength = 6;
+        row.parentElement.appendChild(hiddenInput);
+
+        hiddenInput.addEventListener('input', () => {
+          verifyCode = hiddenInput.value.replace(/\D/g, '').slice(0, 6);
+          updateVerifyDisplay();
+          if (verifyCode.length === 6) {
+            setTimeout(() => {
+              hiddenInput.blur();
+              showToast('验证通过');
+              setTimeout(() => {
+                openSetPwdPage();
+              }, 600);
+            }, 200);
+          }
+        });
+      }
+
+      row.addEventListener('click', () => {
+        hiddenInput.value = verifyCode;
+        hiddenInput.focus();
+      });
+    }
+
+    function updateVerifyDisplay() {
+      for (let i = 0; i < 6; i++) {
+        const box = document.getElementById(`vcode-${i}`);
+        box.classList.remove('filled', 'active-input');
+        if (i < verifyCode.length) {
+          box.classList.add('filled');
+        } else if (i === verifyCode.length) {
+          box.classList.add('active-input');
+        }
+      }
+    }
+
+    function startResendCountdown() {
+      resendSeconds = 27;
+      updateResendDisplay();
+      if (resendTimer) clearInterval(resendTimer);
+      resendTimer = setInterval(() => {
+        resendSeconds--;
+        if (resendSeconds <= 0) {
+          clearInterval(resendTimer);
+          resendTimer = null;
+          const row = document.getElementById('resendBtn');
+          if (row) {
+            row.innerHTML = '<span class="resend-active" onclick="resendVerifyCode()">获取语音验证码</span>';
+          }
+        } else {
+          updateResendDisplay();
+        }
+      }, 1000);
+    }
+
+    function updateResendDisplay() {
+      const el = document.getElementById('resendCountdown');
+      if (el) el.innerText = resendSeconds;
+    }
+
+    function resendVerifyCode() {
+      showToast('语音验证码已发送');
+      const row = document.getElementById('resendBtn');
+      if (row) {
+        row.innerHTML = '获取语音验证码<span id="resendCountdown">27</span>S';
+      }
+      startResendCountdown();
+    }
+
+    // ================= 设置支付密码页逻辑 =================
+    let setPwdValue = '';
+
+    function openSetPwdPage() {
+      setPwdValue = '';
+      updateSetPwdDisplay();
+      navigateToPage('setpwd');
+      document.addEventListener('keydown', handleSetPwdKeydown);
+      initSetPwdTouchInput();
+    }
+
+    function handleSetPwdKeydown(e) {
+      const activePage = document.getElementById('page-setpwd');
+      if (!activePage || !activePage.classList.contains('active')) {
+        document.removeEventListener('keydown', handleSetPwdKeydown);
+        return;
+      }
+      if (e.key >= '0' && e.key <= '9' && setPwdValue.length < 6) {
+        setPwdValue += e.key;
+        updateSetPwdDisplay();
+        if (setPwdValue.length === 6) {
+          setTimeout(() => {
+            document.removeEventListener('keydown', handleSetPwdKeydown);
+            showToast('支付密码设置成功');
+            if (resendTimer) { clearInterval(resendTimer); resendTimer = null; }
+            setTimeout(() => {
+              navigateToPage('points');
+            }, 800);
+          }, 200);
+        }
+      } else if (e.key === 'Backspace' && setPwdValue.length > 0) {
+        setPwdValue = setPwdValue.slice(0, -1);
+        updateSetPwdDisplay();
+      }
+    }
+
+    function initSetPwdTouchInput() {
+      const row = document.querySelector('.setpwd-code-row');
+      if (!row) return;
+
+      let hiddenInput = document.getElementById('setpwdHiddenInput');
+      if (!hiddenInput) {
+        hiddenInput = document.createElement('input');
+        hiddenInput.id = 'setpwdHiddenInput';
+        hiddenInput.type = 'tel';
+        hiddenInput.inputMode = 'numeric';
+        hiddenInput.pattern = '[0-9]*';
+        hiddenInput.style.cssText = 'position:absolute;left:-9999px;top:0;width:1px;height:1px;opacity:0;';
+        hiddenInput.maxLength = 6;
+        row.parentElement.appendChild(hiddenInput);
+
+        hiddenInput.addEventListener('input', () => {
+          setPwdValue = hiddenInput.value.replace(/\D/g, '').slice(0, 6);
+          updateSetPwdDisplay();
+          if (setPwdValue.length === 6) {
+            setTimeout(() => {
+              hiddenInput.blur();
+              showToast('支付密码设置成功');
+              if (resendTimer) { clearInterval(resendTimer); resendTimer = null; }
+              setTimeout(() => {
+                navigateToPage('points');
+              }, 800);
+            }, 200);
+          }
+        });
+      }
+
+      row.addEventListener('click', () => {
+        hiddenInput.value = setPwdValue;
+        hiddenInput.focus();
+      });
+    }
+
+    function updateSetPwdDisplay() {
+      for (let i = 0; i < 6; i++) {
+        const box = document.getElementById(`spwd-${i}`);
+        box.classList.remove('filled', 'active-input');
+        if (i < setPwdValue.length) {
+          box.classList.add('filled');
+        } else if (i === setPwdValue.length) {
+          box.classList.add('active-input');
+        }
+      }
+    }
+
+    function resetSetPwdInput() {
+      setPwdValue = '';
+      updateSetPwdDisplay();
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('appToast');
+      toast.innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 1800);
+    }
+
+    // 默认初始状态：未选中任何资产
+    window.addEventListener('DOMContentLoaded', () => {
+      selectedPoints = [];
+      refreshPointsState();
+      initVerifyTouchInput();
+      if (window.location.hash) {
+        const pageId = window.location.hash.replace('#', '');
+        if (document.getElementById(`page-${pageId}`)) {
+          navigateToPage(pageId);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
